@@ -30,6 +30,7 @@
           { dai: 280, rong: 60, kieu: 'Ghép 45°', donGia: 2500000, note: 'Cạnh bếp dài' },
           { dai: 160, rong: 60, kieu: 'Ghép 45°', donGia: 1800000, note: 'Cạnh bếp ngắn' }
         ],
+        photos: [],
         extraTasks: [{name: 'Khoét lỗ chậu rửa bát', done: true}],
         steps: [
           { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },

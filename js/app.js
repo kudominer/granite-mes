@@ -234,6 +234,19 @@
             ${(!order.slabs || order.slabs.length === 0) ? '<div class="text-xs text-slate-400 text-center py-1">Chưa có tấm nào. Bấm "+ Thêm tấm" để nhập.</div>' : ''}
           </div>
         </div>
+        <div class="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-200 dark:border-blue-800/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-blue-800 dark:text-blue-300"><i class="fa-solid fa-images mr-1"></i> Ảnh Đơn Hàng & Tấm Đá (${order.photos ? order.photos.length : 0})</h5>
+            <label class="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-xs font-semibold cursor-pointer hover:bg-blue-700">
+              + Thêm ảnh
+              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="addOrderPhoto('${order.id}', this)">
+            </label>
+          </div>
+          <div id="order-photos" class="grid grid-cols-3 gap-2">
+            ${(order.photos || []).map(p => `<img src="${p}" class="w-full h-24 object-cover rounded-lg border border-blue-200 dark:border-blue-800">`).join('')}
+            ${(!order.photos || order.photos.length === 0) ? '<div class="col-span-3 text-xs text-slate-400 text-center py-1">Chưa có ảnh. Thêm ảnh chụp tấm đá, biên bản giao nhận...</div>' : ''}
+          </div>
+        </div>
       `;
 
       document.getElementById('order-modal').classList.remove('hidden');
@@ -489,6 +502,21 @@
       closeSlabTable();
       openOrderModal(slabOrderId);
       alert(`Đã lưu ${slabs.length} tấm vào đơn ${order.id}!`);
+    }
+
+    function addOrderPhoto(orderId, input) {
+      const file = input.files[0];
+      if (!file) return;
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      if (!order.photos) order.photos = [];
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        order.photos.push(ev.target.result);
+        openOrderModal(orderId); // render lại để hiện ảnh
+      };
+      reader.readAsDataURL(file);
+      input.value = '';
     }
 
     // Edit Photo (thêm/sửa ảnh đá trong kho)
