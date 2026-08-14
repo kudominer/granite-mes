@@ -7,11 +7,13 @@
     }
 
     let inventory = [
-      { id: 'INV-01', name: 'Kim Sa Trung (Tấm 1)', ownerType: 'customer', ownerName: 'Anh Nam Thầu (Đơn DH-101)', size: '280 x 160 cm', note: 'Đá khách gửi tự mua' },
-      { id: 'INV-02', name: 'Marble Trắng Ý (2 tấm)', ownerType: 'customer', ownerName: 'Chị Lan (Đơn DH-102)', size: '260 x 140 cm', note: 'Đá khách gửi' },
-      { id: 'INV-03', name: 'Đá Vàng Cổ Điển (Dư)', ownerType: 'shop', ownerName: 'Kho Xưởng (Đá dư đơn DH-104)', size: '120 x 60 cm', note: 'Đá dư khách bỏ lại, tái sử dụng' },
-      { id: 'INV-04', name: 'Đen Núi Lửa (Lỗi cắt bù)', ownerType: 'shop', ownerName: 'Kho Xưởng (Tấm bù lỗi DH-101)', size: '200 x 150 cm', note: 'Đá lỗi xưởng phải bù' }
+      { id: 'INV-01', name: 'Kim Sa Trung (Tấm 1)', ma: 'Kim Sa Trung', ownerType: 'customer', ownerName: 'Anh Nam Thầu (Đơn DH-101)', size: '280 x 160 cm', qty: 1, photo: '', note: 'Đá khách gửi tự mua' },
+      { id: 'INV-02', name: 'Marble Trắng Ý (2 tấm)', ma: 'Marble Trắng Ý', ownerType: 'customer', ownerName: 'Chị Lan (Đơn DH-102)', size: '260 x 140 cm', qty: 2, photo: '', note: 'Đá khách gửi' },
+      { id: 'INV-03', name: 'Đá Vàng Cổ Điển (Dư)', ma: 'Đá Vàng Cổ Điển', ownerType: 'shop', ownerName: 'Kho Xưởng (Đá dư đơn DH-104)', size: '120 x 60 cm', qty: 1, photo: '', note: 'Đá dư khách bỏ lại, tái sử dụng' },
+      { id: 'INV-04', name: 'Đen Núi Lửa (Lỗi cắt bù)', ma: 'Đen Núi Lửa', ownerType: 'shop', ownerName: 'Kho Xưởng (Tấm bù lỗi DH-101)', size: '200 x 150 cm', qty: 1, photo: '', note: 'Đá lỗi xưởng phải bù' }
     ];
+
+    let receiveSeq = 1; // đếm số lần nhận đá
 
     let orders = [
       {

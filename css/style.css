@@ -1,38 +1,75 @@
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .tabular-nums { font-variant-numeric: tabular-nums; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
-    /* ===== MOBILE OPTIMIZATION (<=640px) ===== */
-    @media (max-width: 640px) {
-      /* Tab nav: xuống dòng thay vì tràn, chữ nhỏ gọn */
-      nav.flex.lg\:flex-col {
-        flex-wrap: wrap !important;
-        gap: 0.4rem !important;
-      }
-      nav.flex.lg\:flex-col > button {
-        flex: 1 1 auto !important;
-        padding-left: 0.6rem !important;
-        padding-right: 0.6rem !important;
-        font-size: 0.7rem !important;
-        white-space: nowrap;
-      }
-      /* Giảm padding header */
-      header .max-w-7xl, .px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-      /* Bảng: font nhỏ, padding thưa để vừa màn hình, cuộn ngang mượt */
-      table.w-full.text-left.text-sm { font-size: 0.7rem !important; }
-      table.w-full.text-left.text-sm th,
-      table.w-full.text-left.text-sm td {
-        padding: 0.4rem 0.5rem !important;
-        white-space: nowrap;
-      }
-      /* Nút action full width trên mobile */
-      .overflow-x-auto .inline-flex, button.w-full, a.w-full { width: 100% !important; justify-content: center; }
-      /* Thẻ tag trạng thái co gọn */
-      span.inline-flex, .badge { font-size: 0.65rem !important; padding: 0.15rem 0.4rem !important; }
-      /* Ẩn label cột dài, ưu tiên nội dung */
-      .text-xs.text-slate-500 { font-size: 0.7rem !important; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; }
+.tabular-nums { font-variant-numeric: tabular-nums; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+/* ===== MOBILE OPTIMIZATION (<=640px): KHÔNG scroll ngang ===== */
+@media (max-width: 640px) {
+  /* Tab nav: wrap xuống dòng, không tràn */
+  nav.flex.flex-wrap.lg\:flex-col {
+    gap: 0.4rem !important;
+  }
+  nav.flex.flex-wrap.lg\:flex-col > button {
+    flex: 1 1 auto !important;
+    font-size: 0.72rem !important;
+    padding-left: 0.6rem !important;
+    padding-right: 0.6rem !important;
+  }
+  /* Header padding nhỏ lại */
+  header.px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+  /* Ẩn phần phụ trong tên tab */
+  .tab-sub { display: none !important; }
+  /* Nút action full width */
+  button.w-full, a.w-full { width: 100% !important; justify-content: center; }
+  /* Tag trạng thái co gọn */
+  span.inline-flex, .badge { font-size: 0.65rem !important; padding: 0.15rem 0.4rem !important; }
+
+  /* ===== TABLE -> CARD (bỏ scroll ngang) ===== */
+  table.w-full.text-left.text-sm,
+  table.w-full.text-left.text-sm thead,
+  table.w-full.text-left.text-sm tbody,
+  table.w-full.text-left.text-sm tr,
+  table.w-full.text-left.text-sm td {
+    display: block !important;
+    width: 100% !important;
+  }
+  table.w-full.text-left.text-sm thead { display: none !important; }
+  table.w-full.text-left.text-sm tr {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .dark table.w-full.text-left.text-sm tr {
+    background: #0f172a;
+    border-color: #1e293b;
+  }
+  table.w-full.text-left.text-sm td {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.4rem 0.75rem !important;
+    border: none !important;
+    text-align: right !important;
+    white-space: normal !important;
+  }
+  table.w-full.text-left.text-sm td::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #94a3b8;
+    text-align: left;
+    flex-shrink: 0;
+  }
+  .dark table.w-full.text-left.text-sm td::before { color: #64748b; }
+  /* Ảnh đá trong card */
+  table.w-full.text-left.text-sm td img { max-height: 80px; border-radius: 0.5rem; }
+}

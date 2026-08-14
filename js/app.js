@@ -1,7 +1,14 @@
-    // Toggle Theme
+    // Toggle Theme (dark mode class)
     function toggleTheme() {
-      document.documentElement.classList.toggle('dark');
+      const root = document.documentElement;
+      root.classList.toggle('dark');
+      localStorage.setItem('stoneflow-theme', root.classList.contains('dark') ? 'dark' : 'light');
     }
+    // Apply saved theme on load
+    (function () {
+      const saved = localStorage.getItem('stoneflow-theme');
+      if (saved === 'dark') document.documentElement.classList.add('dark');
+    })();
 
     // Tab switching
     function switchTab(tabId) {
@@ -88,16 +95,26 @@
 
       tbody.innerHTML = filtered.map(item => `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="p-4 font-semibold">${item.name} <span class="block text-xs text-slate-400">Mã: ${item.id}</span></td>
-          <td class="p-4">
+          <td class="p-4 font-semibold" data-label="Mã & Tên">
+            <div class="flex items-center space-x-3">
+              ${item.photo ? `<img src="${item.photo}" class="w-14 h-14 object-cover rounded-lg border border-slate-200 dark:border-slate-700">` : `<div class="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400"><i class="fa-solid fa-image"></i></div>`}
+              <div>
+                <div>${item.name}</div>
+                <span class="block text-xs text-slate-400">Mã: ${item.id} ${item.ma ? '· ' + item.ma : ''}</span>
+              </div>
+            </div>
+          </td>
+          <td class="p-4" data-label="Chủ Sở Hữu">
             <span class="px-2 py-1 rounded text-xs font-bold ${item.ownerType === 'customer' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}">
               ${item.ownerType === 'customer' ? 'Khách gửi' : 'Sở hữu Kho'}
             </span>
             <div class="text-xs text-slate-500 mt-0.5">${item.ownerName}</div>
           </td>
-          <td class="p-4 tabular-nums text-slate-600 dark:text-slate-300">${item.size}</td>
-          <td class="p-4 text-xs text-slate-500">${item.note}</td>
-          <td class="p-4 text-right">
+          <td class="p-4 tabular-nums text-slate-600 dark:text-slate-300" data-label="Kích Thước & SL">
+            ${item.size}${item.qty ? ` <span class="text-xs text-slate-400">(${item.qty} tấm)</span>` : ''}
+          </td>
+          <td class="p-4 text-xs text-slate-500" data-label="Ghi Chú">${item.note}</td>
+          <td class="p-4 text-right" data-label="Thao Tác">
             <button onclick="transferOwnership('${item.id}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950 text-amber-600 hover:bg-amber-100 rounded-lg text-xs font-semibold transition">
               <i class="fa-solid fa-exchange-alt mr-1"></i> Chuyển sở hữu
             </button>
@@ -290,6 +307,74 @@
       renderDashboard();
       renderOrdersTable();
       alert(`Đã nhận đơn hàng mới ${newId} (${branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'}) thành công!`);
+    }
+
+    // Receive Stone (Khách đem đá tới - chụp & lưu)
+    function openReceiveStoneModal() {
+      document.getElementById('receive-stone-modal').classList.remove('hidden');
+      document.getElementById('receive-stone-modal').classList.add('flex');
+    }
+    function closeReceiveStoneModal() {
+      document.getElementById('receive-stone-modal').classList.remove('flex');
+      document.getElementById('receive-stone-modal').classList.add('hidden');
+      // reset
+      ['rec-cust-name','rec-order-id','rec-ma','rec-size','rec-qty','rec-notes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('rec-photo').value = '';
+      document.getElementById('rec-photo-preview').classList.add('hidden');
+    }
+    // Preview ảnh khi chọn file
+    document.getElementById('rec-photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('rec-photo-img').src = ev.target.result;
+        document.getElementById('rec-photo-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function createReceiveStone() {
+      const cust = document.getElementById('rec-cust-name').value.trim();
+      const orderId = document.getElementById('rec-order-id').value.trim();
+      const ma = document.getElementById('rec-ma').value.trim();
+      const size = document.getElementById('rec-size').value.trim();
+      const qty = parseInt(document.getElementById('rec-qty').value) || 1;
+      const notes = document.getElementById('rec-notes').value.trim();
+      const photoInput = document.getElementById('rec-photo');
+      const photoFile = photoInput.files[0];
+
+      if (!cust || !ma) {
+        alert('Vui lòng nhập Tên khách và Mẫu mã đá!');
+        return;
+      }
+
+      const doSave = (photoBase64) => {
+        const newId = 'RCV-' + String(receiveSeq++).padStart(3, '0');
+        inventory.unshift({
+          id: newId,
+          name: (ma + (qty > 1 ? ` (${qty} tấm)` : '')),
+          ma: ma,
+          ownerType: 'customer',
+          ownerName: cust + (orderId ? ` (Đơn ${orderId})` : ' (Đá khách đem tới)'),
+          size: size || 'Chưa đo',
+          qty: qty,
+          photo: photoBase64 || '',
+          note: notes || 'Nhận trực tiếp từ khách'
+        });
+        closeReceiveStoneModal();
+        if (currentInvTab !== 'customer') setInventoryTab('customer');
+        else renderInventory();
+        alert(`Đã nhận đá "${ma}" từ ${cust} (${qty} tấm) và lưu vào kho khách gửi!`);
+      };
+
+      if (photoFile) {
+        const reader = new FileReader();
+        reader.onload = function(ev) { doSave(ev.target.result); };
+        reader.readAsDataURL(photoFile);
+      } else {
+        doSave('');
+      }
     }
 
     // Init
