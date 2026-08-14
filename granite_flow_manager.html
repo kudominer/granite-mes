@@ -14,6 +14,39 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+    /* ===== MOBILE OPTIMIZATION (<=640px) ===== */
+    @media (max-width: 640px) {
+      /* Tab nav: xuống dòng thay vì tràn, chữ nhỏ gọn */
+      nav.flex.lg\:flex-col {
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+      }
+      nav.flex.lg\:flex-col > button {
+        flex: 1 1 auto !important;
+        padding-left: 0.6rem !important;
+        padding-right: 0.6rem !important;
+        font-size: 0.7rem !important;
+        white-space: nowrap;
+      }
+      /* Giảm padding header */
+      header .max-w-7xl, .px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+      /* Bảng: font nhỏ, padding thưa để vừa màn hình, cuộn ngang mượt */
+      table.w-full.text-left.text-sm { font-size: 0.7rem !important; }
+      table.w-full.text-left.text-sm th,
+      table.w-full.text-left.text-sm td {
+        padding: 0.4rem 0.5rem !important;
+        white-space: nowrap;
+      }
+      /* Nút action full width trên mobile */
+      .overflow-x-auto .inline-flex, button.w-full, a.w-full { width: 100% !important; justify-content: center; }
+      /* Thẻ tag trạng thái co gọn */
+      span.inline-flex, .badge { font-size: 0.65rem !important; padding: 0.15rem 0.4rem !important; }
+      /* Ẩn label cột dài, ưu tiên nội dung */
+      .text-xs.text-slate-500 { font-size: 0.7rem !important; }
+      /* Ẩn phần phụ trong tên tab trên mobile */
+      .tab-sub { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
@@ -57,7 +90,7 @@
         </button>
         <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-cubes w-5 text-center"></i>
-          <span class="whitespace-nowrap">Kho Đá (NL & Thành Phẩm)</span>
+          <span class="whitespace-nowrap">Kho Đá <span class="tab-sub">(NL & Thành Phẩm)</span></span>
         </button>
         <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
