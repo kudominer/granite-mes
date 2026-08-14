@@ -1,0 +1,5 @@
+// StoneFlow Pro - Supabase config (TEMPLATE)
+// Copy thành js/config.js và điền giá trị thật từ Supabase Dashboard -> Settings -> API
+// KHÔNG commit js/config.js (đã gitignore)
+window.SUPABASE_URL = 'https://your-project.supabase.co';
+window.SUPABASE_ANON_KEY = 'your-anon-public-key';
