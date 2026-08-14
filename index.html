@@ -56,6 +56,10 @@
           <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
           <span class="whitespace-nowrap">Đơn Hàng & Tiến Độ (2 Nhánh)</span>
         </button>
+        <button onclick="switchTab('ops')" id="nav-ops" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
+          <i class="fa-solid fa-chart-line w-5 text-center"></i>
+          <span class="whitespace-nowrap">Vận Hành Xưởng <span class="tab-sub">(Trí tuệ)</span></span>
+        </button>
       </nav>
 
       <div class="hidden lg:block pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
@@ -261,6 +265,84 @@
               <tbody id="orders-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
                 <!-- JS populated -->
               </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: OPS INTELLIGENCE (Vận Hành Xưởng) -->
+      <section id="tab-ops" class="space-y-6 tab-content hidden">
+        <div>
+          <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Vận Hành Xưởng Thông Minh</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Trí tuệ vận hành áp dụng quy hoạch tồn kho & lập lịch sản xuất (từ ECC skills) cho xưởng đá.</p>
+        </div>
+
+        <!-- Ops KPI -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs font-semibold uppercase text-slate-500">Đơn Đúng Hạn</div>
+            <div class="mt-2 text-3xl font-extrabold tabular-nums text-emerald-600" id="ops-ontime">—</div>
+            <div class="text-xs text-slate-400 mt-1">tỷ lệ giao đúng hạn</div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs font-semibold uppercase text-slate-500">Đơn Trễ Tiến Độ</div>
+            <div class="mt-2 text-3xl font-extrabold tabular-nums text-rose-600" id="ops-late">—</div>
+            <div class="text-xs text-slate-400 mt-1">cần đẩy nhanh</div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs font-semibold uppercase text-slate-500">Giá Trị Đang Gia Công</div>
+            <div class="mt-2 text-2xl lg:text-3xl font-extrabold tabular-nums text-amber-600" id="ops-value">—</div>
+            <div class="text-xs text-slate-400 mt-1">tổng đơn đang làm</div>
+          </div>
+          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="text-xs font-semibold uppercase text-slate-500">Cảnh Báo Kho</div>
+            <div class="mt-2 text-3xl font-extrabold tabular-nums text-purple-600" id="ops-warn">—</div>
+            <div class="text-xs text-slate-400 mt-1">đá tồn lâu/chưa ảnh</div>
+          </div>
+        </div>
+
+        <!-- Branch load + ABC -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-base mb-4">Tải Trọng 2 Nhánh Gia Công</h3>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between text-sm mb-1"><span class="font-semibold text-emerald-600">Nhánh A: Ghép 45°</span><span id="ops-branch-a-n">0 đơn</span></div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden"><div id="ops-branch-a-bar" class="bg-emerald-500 h-3 rounded-full transition-all" style="width:0%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-sm mb-1"><span class="font-semibold text-purple-600">Nhánh B: Ghép Bo</span><span id="ops-branch-b-n">0 đơn</span></div>
+                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden"><div id="ops-branch-b-bar" class="bg-purple-500 h-3 rounded-full transition-all" style="width:0%"></div></div>
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-4">Drum (ràng buộc) = nhánh có nhiều đơn đang chạy hơn → ưu tiên đẩy trước.</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="font-bold text-base mb-4">Phân Loại Kho Đá (ABC)</h3>
+            <div id="ops-abc" class="space-y-2 text-sm"></div>
+            <p class="text-xs text-slate-400 mt-3">A = ít mẫu, nhiều giá trị · C = nhiều mẫu, ít giá trị. Tập trung quản lý nhóm A.</p>
+          </div>
+        </div>
+
+        <!-- Priority table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h3 class="font-bold text-base">Bảng Ưu Tiên Đơn (EDD + Buffer)</h3>
+            <span class="text-xs text-slate-400">Xanh=an toàn · Vàng=cần chú ý · Đỏ=gấp</span>
+          </div>
+          <div class="overflow-x-auto sm:overflow-visible">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Mã & Khách</th>
+                  <th class="p-4">Nhánh</th>
+                  <th class="p-4">Trạng Thái</th>
+                  <th class="p-4">Ưu Tiên</th>
+                  <th class="p-4 text-right">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="ops-priority-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
             </table>
           </div>
         </div>

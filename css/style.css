@@ -74,6 +74,8 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
   table.w-full.text-left.text-sm td img { max-height: 80px; border-radius: 0.5rem; }
 }
 
+.tab-sub { font-size: 0.7rem; opacity: 0.6; font-weight: 500; }
+
 /* ===== FIX DARK MODE TOÀN CỤC (đè lên Tailwind light classes) ===== */
 /* Tailwind Play CDN v4 không hỗ trợ darkMode:'class' qua config,
    nên mình override thủ công khi <html class="dark"> được bật. */

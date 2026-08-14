@@ -27,6 +27,7 @@
       if (tabId === 'inventory') renderInventory();
       if (tabId === 'orders') renderOrdersTable();
       if (tabId === 'dashboard') renderDashboard();
+      if (tabId === 'ops') renderOpsIntelligence();
     }
 
     // Format currency
@@ -566,6 +567,74 @@
         alert('Đã lưu ảnh cho ' + item.name + '!');
       };
       reader.readAsDataURL(file);
+    }
+
+    // ===== OPS INTELLIGENCE (từ ECC skills: inventory-demand-planning + production-scheduling) =====
+    function renderOpsIntelligence() {
+      const all = (typeof orders !== 'undefined' ? orders : []);
+      const inv = (typeof inventory !== 'undefined' ? inventory : []);
+      const active = all.filter(o => !(o.steps && o.steps.length && o.steps.every(s => s.done)));
+      const done = all.filter(o => o.steps && o.steps.length && o.steps.every(s => s.done));
+
+      // KPI
+      const ontime = all.length ? Math.round(done.length / all.length * 100) : 0;
+      document.getElementById('ops-ontime').textContent = ontime + '%';
+      document.getElementById('ops-late').textContent = active.length;
+      const val = active.reduce((s, o) => s + (o.total || 0), 0);
+      document.getElementById('ops-value').textContent = (val / 1e6).toFixed(1) + 'M';
+      const warn = inv.filter(i => !i.photo).length;
+      document.getElementById('ops-warn').textContent = warn;
+
+      // Branch load (Drum-Buffer-Rope: nhánh nào nhiều đơn đang làm = constraint)
+      const aN = active.filter(o => o.branch === '45').length;
+      const bN = active.filter(o => o.branch === 'bo').length;
+      const maxB = Math.max(aN, bN, 1);
+      document.getElementById('ops-branch-a-n').textContent = aN + ' đơn';
+      document.getElementById('ops-branch-b-n').textContent = bN + ' đơn';
+      document.getElementById('ops-branch-a-bar').style.width = (aN / maxB * 100) + '%';
+      document.getElementById('ops-branch-b-bar').style.width = (bN / maxB * 100) + '%';
+
+      // ABC classification by mẫu đá (theo số lượng tấm)
+      const byMa = {};
+      inv.forEach(i => {
+        const k = i.ma || i.name || 'Khác';
+        byMa[k] = (byMa[k] || 0) + (i.qty || 1);
+      });
+      const entries = Object.entries(byMa).sort((a, b) => b[1] - a[1]);
+      const totalQ = entries.reduce((s, e) => s + e[1], 0) || 1;
+      let cum = 0;
+      const abcHtml = entries.slice(0, 6).map(([ma, q]) => {
+        cum += q;
+        const pct = Math.round(cum / totalQ * 100);
+        const cls = pct <= 80 ? 'text-rose-600 font-bold' : (pct <= 95 ? 'text-amber-600' : 'text-slate-400');
+        const tag = pct <= 80 ? 'A' : (pct <= 95 ? 'B' : 'C');
+        return `<div class="flex justify-between items-center"><span>${ma}</span><span class="${cls}">${q} tấm · ${tag}</span></div>`;
+      }).join('');
+      document.getElementById('ops-abc').innerHTML = abcHtml || '<div class="text-slate-400">Chưa có dữ liệu kho</div>';
+
+      // Priority table (EDD: sắp xếp theo id tăng dần giả lập due date + buffer color)
+      const ranked = active.slice().sort((a, b) => (parseInt(a.id.replace(/\D/g, '')) || 0) - (parseInt(b.id.replace(/\D/g, '')) || 0));
+      const body = document.getElementById('ops-priority-body');
+      if (!ranked.length) {
+        body.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">Không có đơn đang gia công</td></tr>';
+        return;
+      }
+      body.innerHTML = ranked.map(o => {
+        const doneSteps = o.steps ? o.steps.filter(s => s.done).length : 0;
+        const totalSteps = o.steps ? o.steps.length : 1;
+        const ratio = doneSteps / totalSteps;
+        let buf = 'bg-emerald-50 text-emerald-600'; let label = 'An toàn';
+        if (ratio < 0.34) { buf = 'bg-rose-50 text-rose-600'; label = 'Gấp'; }
+        else if (ratio < 0.67) { buf = 'bg-amber-50 text-amber-600'; label = 'Chú ý'; }
+        const branch = o.branch === '45' ? 'Nhánh A: 45°' : 'Nhánh B: Bo';
+        return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <td class="p-4 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span></td>
+          <td class="p-4 text-xs font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">${branch}</td>
+          <td class="p-4"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800">${doneSteps}/${totalSteps} bước</span></td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${buf}">${label}</span></td>
+          <td class="p-4 text-right"><button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Xem</button></td>
+        </tr>`;
+      }).join('');
     }
 
     // Init
