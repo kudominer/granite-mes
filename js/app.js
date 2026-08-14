@@ -219,7 +219,7 @@
         <div class="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
           <div class="flex items-center justify-between">
             <h5 class="text-xs font-bold text-emerald-800 dark:text-emerald-300"><i class="fa-solid fa-layer-group mr-1"></i> Danh sách tấm đá (${order.slabs ? order.slabs.length : 0} tấm)</h5>
-            <button onclick="addSlab('${order.id}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold">+ Thêm tấm</button>
+            <button onclick="openSlabTable('${order.id}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold">+ Thêm tấm</button>
           </div>
           <div id="slabs-list" class="space-y-1.5">
             ${(order.slabs || []).map((s, i) => `
@@ -400,28 +400,95 @@
       }
     }
 
-    function addSlab(orderId) {
+    // ===== SLAB TABLE (Phương án A: bảng nhập liệu, paste Excel) =====
+    let slabOrderId = null;
+
+    function openSlabTable(orderId) {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
-      if (!order.slabs) order.slabs = [];
-      // Tạm dùng prompt để nhập nhanh (sẽ làm form chuyên dụng khi hội ý xong)
-      const dai = prompt('Chiều dài tấm (cm):', '100');
-      if (dai === null) return;
-      const rong = prompt('Chiều rộng tấm (cm):', '60');
-      if (rong === null) return;
-      const kieu = prompt('Kiểu gia công cạnh (VD: Ghép 45°, Ghép bo, Bo viền...):', 'Ghép 45°');
-      if (kieu === null) return;
-      const donGia = prompt('Đơn giá tấm (VNĐ):', '1500000');
-      if (donGia === null) return;
-      const note = prompt('Ghi chú (tuỳ chọn):', '') || '';
-      order.slabs.push({
-        dai: parseFloat(dai) || 0,
-        rong: parseFloat(rong) || 0,
-        kieu: kieu,
-        donGia: parseInt((donGia || '0').replace(/\D/g, '')) || 0,
-        note: note
+      slabOrderId = orderId;
+      document.getElementById('slab-paste').value = '';
+      const tbody = document.getElementById('slab-table-body');
+      tbody.innerHTML = '';
+      // Nạp sẵn các tấm hiện có (nếu có)
+      (order.slabs || []).forEach(s => addSlabRow(s.dai, s.rong, s.kieu, s.donGia, s.note));
+      if (!(order.slabs && order.slabs.length)) addSlabRow();
+      updateSlabCount();
+      document.getElementById('slab-table-modal').classList.remove('hidden');
+      document.getElementById('slab-table-modal').classList.add('flex');
+    }
+
+    function closeSlabTable() {
+      document.getElementById('slab-table-modal').classList.remove('flex');
+      document.getElementById('slab-table-modal').classList.add('hidden');
+      slabOrderId = null;
+    }
+
+    function addSlabRow(dai = '', rong = '', kieu = '', donGia = '', note = '') {
+      const tbody = document.getElementById('slab-table-body');
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-100 dark:border-slate-800';
+      tr.innerHTML = `
+        <td class="p-1 text-slate-400 text-xs">${tbody.children.length + 1}</td>
+        <td class="p-1"><input class="slab-dai w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm" value="${dai}" inputmode="decimal"></td>
+        <td class="p-1"><input class="slab-rong w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm" value="${rong}" inputmode="decimal"></td>
+        <td class="p-1"><input class="slab-kieu w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm" value="${kieu}"></td>
+        <td class="p-1"><input class="slab-gia w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm" value="${donGia}" inputmode="decimal"></td>
+        <td class="p-1"><input class="slab-note w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm" value="${note}"></td>
+        <td class="p-1"><button onclick="this.closest('tr').remove(); renumberSlabs(); updateSlabCount();" class="text-red-500 hover:text-red-700 px-1" title="Xoá dòng"><i class="fa-solid fa-trash"></i></button></td>
+      `;
+      // Enter trong input -> thêm dòng mới
+      tr.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addSlabRow(); document.querySelector('#slab-table-body tr:last-child input').focus(); } });
       });
-      openOrderModal(orderId); // render lại modal
+      tbody.appendChild(tr);
+      renumberSlabs();
+      updateSlabCount();
+    }
+
+    function renumberSlabs() {
+      document.querySelectorAll('#slab-table-body tr').forEach((tr, i) => {
+        tr.children[0].textContent = i + 1;
+      });
+    }
+
+    function updateSlabCount() {
+      const n = document.querySelectorAll('#slab-table-body tr').length;
+      document.getElementById('slab-count').textContent = `${n} tấm trong bảng`;
+    }
+
+    function parseSlabPaste() {
+      const raw = document.getElementById('slab-paste').value.trim();
+      if (!raw) return;
+      const lines = raw.split(/\n+/);
+      const tbody = document.getElementById('slab-table-body');
+      tbody.innerHTML = '';
+      lines.forEach(line => {
+        const cols = line.split('\t').map(c => c.trim());
+        if (cols.length < 2) return;
+        addSlabRow(cols[0] || '', cols[1] || '', cols[2] || '', cols[3] || '', cols[4] || '');
+      });
+      updateSlabCount();
+    }
+
+    function saveSlabTable() {
+      if (!slabOrderId) return;
+      const order = orders.find(o => o.id === slabOrderId);
+      if (!order) return;
+      const rows = document.querySelectorAll('#slab-table-body tr');
+      const slabs = [];
+      rows.forEach(tr => {
+        const dai = parseFloat(tr.querySelector('.slab-dai').value) || 0;
+        const rong = parseFloat(tr.querySelector('.slab-rong').value) || 0;
+        const kieu = tr.querySelector('.slab-kieu').value.trim();
+        const donGia = parseInt((tr.querySelector('.slab-gia').value || '0').replace(/\D/g, '')) || 0;
+        const note = tr.querySelector('.slab-note').value.trim();
+        if (dai > 0 && rong > 0) slabs.push({ dai, rong, kieu, donGia, note });
+      });
+      order.slabs = slabs;
+      closeSlabTable();
+      openOrderModal(slabOrderId);
+      alert(`Đã lưu ${slabs.length} tấm vào đơn ${order.id}!`);
     }
 
     // Edit Photo (thêm/sửa ảnh đá trong kho)
