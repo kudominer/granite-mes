@@ -79,7 +79,11 @@
             <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Tổng Quan Hoạt Động Xưởng</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400">Nắm bắt nhanh tình trạng đơn hàng gia công và kho đá khách gửi / đá tồn.</p>
           </div>
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-2 flex-wrap">
+            <button onclick="openReceiveStoneModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-600/20 transition flex items-center space-x-2">
+              <i class="fa-solid fa-camera"></i>
+              <span>Nhận Đá Khách (Chụp)</span>
+            </button>
             <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/20 transition flex items-center space-x-2">
               <i class="fa-solid fa-plus"></i>
               <span>Nhận Đơn Hàng Mới</span>
