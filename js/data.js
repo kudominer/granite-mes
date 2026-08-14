@@ -61,3 +61,6 @@
         ]
       }
     ];
+
+    // Nhật ký giao nhận / hoạt động xưởng (từ ECC skill: logistics-exception-management)
+    let activities = [];

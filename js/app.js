@@ -228,9 +228,13 @@
               <div class="text-xs bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
                 <div class="flex-1">
                   <strong>#${i+1}</strong> ${s.dai} x ${s.rong} cm · <span class="text-emerald-600 font-semibold">${s.kieu}</span>
+                  ${s.defect ? '<span class="ml-1 px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold text-[10px]">LỖI</span>' : ''}
                   ${s.note ? `<div class="text-slate-400 text-[11px]">${s.note}</div>` : ''}
                 </div>
-                <div class="text-right text-emerald-600 font-bold tabular-nums">${formatMoney(s.donGia)}</div>
+                <div class="flex items-center gap-2">
+                  <div class="text-right text-emerald-600 font-bold tabular-nums">${formatMoney(s.donGia)}</div>
+                  <button onclick="toggleSlabDefect('${order.id}', ${i})" class="px-2 py-1 rounded-lg text-[10px] font-bold ${s.defect ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${s.defect ? 'Hủy lỗi' : 'Đánh dấu lỗi'}</button>
+                </div>
               </div>
             `).join('')}
             ${(!order.slabs || order.slabs.length === 0) ? '<div class="text-xs text-slate-400 text-center py-1">Chưa có tấm nào. Bấm "+ Thêm tấm" để nhập.</div>' : ''}
@@ -346,6 +350,7 @@
       renderOrdersTable();
       const newOrder = orders.find(o => o.id === newId);
       if (newOrder) saveOrderToSupabase(newOrder);
+      logActivity('order', `Nhận đơn ${newId} · ${branch === '45' ? 'Nhánh 45°' : 'Nhánh Bo'} · ${customer}`);
       alert(`Đã nhận đơn hàng mới ${newId} (${branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'}) thành công!`);
     }
 
@@ -406,6 +411,7 @@
         if (currentInvTab !== 'customer') setInventoryTab('customer');
         else renderInventory();
         saveInventoryToSupabase(inventory[0]);
+        logActivity('receive', `Nhận đá "${ma}" · ${qty} tấm · từ ${cust} (Đơn ${orderId || '—'})`);
         alert(`Đã nhận đá "${ma}" từ ${cust} (${qty} tấm) và lưu vào kho khách gửi!`);
       };
 
@@ -569,6 +575,21 @@
       reader.readAsDataURL(file);
     }
 
+    // ===== Quality (nonconformance) + Logistics (activity log) từ ECC skills =====
+    function toggleSlabDefect(orderId, idx) {
+      const order = (typeof orders !== 'undefined' ? orders : []).find(o => o.id === orderId);
+      if (!order || !order.slabs || !order.slabs[idx]) return;
+      order.slabs[idx].defect = !order.slabs[idx].defect;
+      saveOrderToSupabase(order);
+      openOrderModal(orderId);
+    }
+
+    function logActivity(type, text) {
+      if (typeof activities === 'undefined') return;
+      activities.unshift({ t: new Date().toISOString(), type, text });
+      if (activities.length > 100) activities.pop();
+    }
+
     // ===== OPS INTELLIGENCE (từ ECC skills: inventory-demand-planning + production-scheduling) =====
     function renderOpsIntelligence() {
       const all = (typeof orders !== 'undefined' ? orders : []);
@@ -582,7 +603,7 @@
       document.getElementById('ops-late').textContent = active.length;
       const val = active.reduce((s, o) => s + (o.total || 0), 0);
       document.getElementById('ops-value').textContent = (val / 1e6).toFixed(1) + 'M';
-      const warn = inv.filter(i => !i.photo).length;
+      const warn = inv.filter(i => !i.photo).length + (all.reduce((s, o) => s + (o.slabs || []).filter(sl => sl.defect).length, 0));
       document.getElementById('ops-warn').textContent = warn;
 
       // Branch load (Drum-Buffer-Rope: nhánh nào nhiều đơn đang làm = constraint)
@@ -634,6 +655,17 @@
           <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${buf}">${label}</span></td>
           <td class="p-4 text-right"><button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Xem</button></td>
         </tr>`;
+      }).join('');
+
+      // Nhật ký giao nhận
+      const act = document.getElementById('ops-activity');
+      if (!act) return;
+      if (!activities.length) { act.innerHTML = '<div class="text-slate-400 text-center py-4">Chưa có hoạt động nào</div>'; return; }
+      const ic = { order: '📋', receive: '📥', photo: '📷', warehouse: '🏭', ship: '🚚' };
+      act.innerHTML = activities.slice(0, 30).map(a => {
+        const d = new Date(a.t);
+        const time = `${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        return `<div class="flex items-start gap-2"><span>${ic[a.type] || '•'}</span><span class="flex-1">${a.text}</span><span class="text-slate-400 text-xs whitespace-nowrap">${time}</span></div>`;
       }).join('');
     }
 
