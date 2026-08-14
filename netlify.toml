@@ -6,7 +6,7 @@
 # Trang chủ mặc định
 [[redirects]]
   from = "/"
-  to = "/granite_flow_manager.html"
+  to = "/index.html"
   status = 200
 
 # Password Protection đã bật trên dashboard Netlify (gói Starter hỗ trợ)
