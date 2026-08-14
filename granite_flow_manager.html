@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <title>StoneFlow Pro - Quản Lý Xưởng Đá Hoa Cương</title>
+  <title>StoneFlow Pro - Quản Lý Kho & Xưởng Đá Hoa Cương (Nhà)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,7 +10,6 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .tabular-nums { font-variant-numeric: tabular-nums; }
-    /* Custom scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -20,31 +19,30 @@
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Top Navigation Bar -->
-  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between">
+  <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between shadow-sm">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-amber-500/20">
         <i class="fa-solid fa-gem"></i>
       </div>
       <div>
-        <h1 class="font-bold text-base lg:text-lg tracking-tight">StoneFlow Pro</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Hệ Thống Quản Lý Xưởng Đá Hoa Cương & Marble</p>
+        <h1 class="font-bold text-base lg:text-lg tracking-tight">StoneFlow Pro <span class="text-xs px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-semibold ml-1">Xưởng Chú Cẩn & Kudo</span></h1>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Quản lý kho đá gia công & tiến độ 2 nhánh (45° & Bo)</p>
       </div>
     </div>
 
     <div class="flex items-center space-x-3">
       <div class="hidden md:flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-user-shield text-amber-500"></i>
-        <span>Chủ xưởng: Quản trị viên</span>
+        <i class="fa-solid fa-user-gear text-amber-500"></i>
+        <span id="current-user-role">Đang dùng: Kudo (Quản trị / Thợ)</span>
       </div>
+      <button onclick="toggleUserRole()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-200 dark:border-amber-800 transition hover:bg-amber-100">
+        <i class="fa-solid fa-users"></i>
+        <span>Đổi vai trò</span>
+      </button>
       <button onclick="toggleTheme()" class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Đổi giao diện">
         <i class="fa-solid fa-moon dark:hidden"></i>
         <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
       </button>
-      <div class="relative">
-        <button onclick="alert('Đã đồng bộ dữ liệu với Cloud')" class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800/50" title="Trạng thái hệ thống: Hoạt động">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        </button>
-      </div>
     </div>
   </header>
 
@@ -55,33 +53,25 @@
       <nav class="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1.5 w-full overflow-x-auto">
         <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 w-full text-left">
           <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-          <span class="whitespace-nowrap">Tổng Quan</span>
-        </button>
-        <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
-          <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-          <span class="whitespace-nowrap">Đơn Hàng & Tiến Độ</span>
+          <span class="whitespace-nowrap">Tổng Quan Xưởng</span>
         </button>
         <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-cubes w-5 text-center"></i>
-          <span class="whitespace-nowrap">Kho Đá & Tồn Kho</span>
+          <span class="whitespace-nowrap">Kho Đá (NL & Thành Phẩm)</span>
         </button>
-        <button onclick="switchTab('labor')" id="nav-labor" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
-          <i class="fa-solid fa-users-gear w-5 text-center"></i>
-          <span class="whitespace-nowrap">Nhân Công & Thợ</span>
-        </button>
-        <button onclick="switchTab('finance')" id="nav-finance" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
-          <i class="fa-solid fa-wallet w-5 text-center"></i>
-          <span class="whitespace-nowrap">Tài Chính & Công Nợ</span>
+        <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
+          <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+          <span class="whitespace-nowrap">Đơn Hàng & Tiến Độ (2 Nhánh)</span>
         </button>
       </nav>
 
       <div class="hidden lg:block pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
         <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 text-white p-3.5 rounded-xl text-xs space-y-2 shadow-inner">
           <div class="flex items-center justify-between font-semibold text-amber-400">
-            <span>Xưởng Hoàng Kim</span>
+            <span>Xưởng Chú Cẩn</span>
             <i class="fa-solid fa-check-circle"></i>
           </div>
-          <p class="text-slate-300 leading-relaxed">Hệ thống đang hoạt động ổn định. Dữ liệu lưu trực tiếp trên Cloud.</p>
+          <p class="text-slate-300 leading-relaxed">Đã tối ưu cho điện thoại di động tại xưởng và máy tính văn phòng.</p>
         </div>
       </div>
     </aside>
@@ -94,12 +84,12 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Tổng Quan Hoạt Động Xưởng</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Cập nhật nhanh tình trạng đơn hàng, tiến độ gia công và tồn kho đá hôm nay.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Nắm bắt nhanh tình trạng đơn hàng gia công và kho đá khách gửi / đá tồn.</p>
           </div>
           <div class="flex items-center space-x-2">
             <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/20 transition flex items-center space-x-2">
               <i class="fa-solid fa-plus"></i>
-              <span>Tạo Đơn Hàng Mới</span>
+              <span>Nhận Đơn Hàng Mới</span>
             </button>
           </div>
         </div>
@@ -108,76 +98,76 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đơn Hàng Đang Xử Lý</span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đơn Đang Gia Công</span>
               <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
                 <i class="fa-solid fa-spinner"></i>
               </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-              <span class="text-3xl font-extrabold tabular-nums" id="kpi-active-orders">12</span>
-              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">+2 tuần này</span>
+              <span class="text-3xl font-extrabold tabular-nums" id="kpi-active-orders">4</span>
+              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">Đang chạy xưởng</span>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Doanh Thu Tháng (VNĐ)</span>
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-chart-line"></i>
-              </div>
-            </div>
-            <div class="mt-3 flex items-baseline justify-between">
-              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums" id="kpi-revenue">345.2M</span>
-              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">+18%</span>
-            </div>
-          </div>
-
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đá Tồn Kho (m²)</span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đá Khách Gửi (Nguyên liệu)</span>
               <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
                 <i class="fa-solid fa-cubes"></i>
               </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-              <span class="text-3xl font-extrabold tabular-nums" id="kpi-stock">1,240</span>
-              <span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">48 mẫu đá</span>
+              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums" id="kpi-cust-stone">18 tấm</span>
+              <span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">95% của khách</span>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Công Nợ Phải Thu</span>
-              <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đá Dư / Đá Lỗi (Thuộc Kho)</span>
+              <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-recycle"></i>
               </div>
             </div>
             <div class="mt-3 flex items-baseline justify-between">
-              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums text-rose-600 dark:text-rose-400" id="kpi-debt">68.5M</span>
-              <span class="text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 rounded-full">4 khách nợ</span>
+              <span class="text-3xl font-extrabold tabular-nums" id="kpi-shop-stone">5 tấm</span>
+              <span class="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full">Tái sử dụng</span>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Thành Phẩm Chờ Giao</span>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline justify-between">
+              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums text-emerald-600 dark:text-emerald-400" id="kpi-finished">2 đơn</span>
+              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">Sẵn sàng xuất</span>
             </div>
           </div>
         </div>
 
-        <!-- Recent Orders & Quick Pipeline status -->
+        <!-- Recent orders & Workflow branch quick view -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="font-bold text-base">Tiến Độ Đơn Hàng Gần Đây</h3>
+              <h3 class="font-bold text-base">Đơn Hàng Gần Đây & Nhánh Gia Công</h3>
               <button onclick="switchTab('orders')" class="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline">Xem tất cả</button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead>
                   <tr class="border-b border-slate-100 dark:border-slate-800 text-xs font-semibold text-slate-400 uppercase">
-                    <th class="pb-3">Mã & Khách Hàng</th>
-                    <th class="pb-3">Loại Đá</th>
+                    <th class="pb-3">Mã & Khách</th>
+                    <th class="pb-3">Nhánh Gia Công</th>
                     <th class="pb-3">Trạng Thái</th>
                     <th class="pb-3 text-right">Tổng Tiền</th>
                   </tr>
                 </thead>
                 <tbody id="dashboard-orders-list" class="divide-y divide-slate-100 dark:divide-slate-800">
-                  <!-- Populated by JS -->
+                  <!-- JS populated -->
                 </tbody>
               </table>
             </div>
@@ -185,75 +175,77 @@
 
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 class="font-bold text-base mb-4">Quy Trình Gia Công Xưởng</h3>
-              <div class="space-y-4">
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
-                  <div>
-                    <h4 class="text-sm font-semibold">Đo đạc & Lên bản vẽ CAD</h4>
-                    <p class="text-xs text-slate-500">Khảo sát công trình, thống kê kích thước mặt bếp, cầu thang.</p>
-                  </div>
+              <h3 class="font-bold text-base mb-3">Quy Trình 2 Nhánh Xưởng</h3>
+              <div class="space-y-3 text-xs">
+                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
+                  <span class="font-bold text-emerald-700 dark:text-emerald-400 block mb-1">🌿 Nhánh A: Ghép 45°</span>
+                  <p class="text-slate-600 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép 45° ➔ Líp 45° (Tách Líp mặt + Líp chỉ) ➔ <strong>Ghép (Kết thúc, không qua đánh bóng)</strong>.</p>
                 </div>
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
-                  <div>
-                    <h4 class="text-sm font-semibold">Cắt phôi & Xẻ đá</h4>
-                    <p class="text-xs text-slate-500">Cắt theo khổ đá, tối ưu hóa phôi, chụp ảnh phôi nguyên bản.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
-                  <div>
-                    <h4 class="text-sm font-semibold">Gia công cạnh & Đánh bóng</h4>
-                    <p class="text-xs text-slate-500">Bo cạnh, khoét chậu, chống thấm, đánh bóng bề mặt.</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">4</div>
-                  <div>
-                    <h4 class="text-sm font-semibold">Lắp đặt & Nghiệm thu</h4>
-                    <p class="text-xs text-slate-500">Vận chuyển đến công trình, lắp ráp, bàn giao và thanh toán.</p>
-                  </div>
+                <div class="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60">
+                  <span class="font-bold text-purple-700 dark:text-purple-400 block mb-1">💜 Nhánh B: Ghép Bo</span>
+                  <p class="text-slate-600 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép bo ➔ Ghép ➔ Bo kiểu ➔ <strong>Đánh bóng (Bắt buộc)</strong> ➔ Thành phẩm.</p>
                 </div>
               </div>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-              <span class="text-xs text-slate-400">Hệ thống tối ưu tỷ lệ hao hụt đá < 5%</span>
+            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
+              <span class="text-xs text-slate-400">Có thể bổ sung công đoạn phụ (khoét lavabo, khoan lỗ...)</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 2: ORDERS -->
-      <section id="tab-orders" class="space-y-6 tab-content hidden">
+      <!-- TAB 2: INVENTORY (KHO ĐÁ - QUAN TRỌNG) -->
+      <section id="tab-inventory" class="space-y-6 tab-content hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Quản Lý Đơn Hàng & Tiến Độ</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Theo dõi toàn bộ các đơn hàng từ khâu nhận thông tin đến khi lắp đặt xong.</p>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Quản Lý Kho Nguyên Liệu & Thành Phẩm</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Quản lý đá khách gửi theo đơn hàng và phần đá dư/đá lỗi thuộc sở hữu của kho.</p>
           </div>
-          <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/25 transition flex items-center space-x-2">
+          <button onclick="openNewStoneModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/25 transition flex items-center space-x-2">
             <i class="fa-solid fa-plus"></i>
-            <span>Tạo Đơn Hàng Mới</span>
+            <span>Nhập Tấm Đá Mới / Đá Khách Gửi</span>
           </button>
         </div>
 
-        <!-- Filter bar -->
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center space-x-2 w-full sm:w-auto flex-1 max-w-md">
-            <div class="relative w-full">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                <i class="fa-solid fa-search"></i>
-              </span>
-              <input type="text" id="order-search" oninput="filterOrders()" placeholder="Tìm theo tên khách, mã đơn, loại đá..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-amber-500">
-            </div>
+        <!-- Filter tabs for inventory -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1">
+          <button onclick="setInventoryTab('customer')" id="inv-tab-cust" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white transition">Đá Khách Gửi (Nguyên liệu)</button>
+          <button onclick="setInventoryTab('shop')" id="inv-tab-shop" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Đá Kho (Đá dư / Đá lỗi bù)</button>
+          <button onclick="setInventoryTab('finished')" id="inv-tab-fin" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Kho Thành Phẩm (Chờ giao)</button>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase">
+                  <th class="p-4">Mã Tấm & Tên Đá</th>
+                  <th class="p-4">Chủ Sở Hữu</th>
+                  <th class="p-4">Kích Thước / Số Lượng</th>
+                  <th class="p-4">Ghi Chú Đơn Hàng</th>
+                  <th class="p-4 text-right">Thao Tác Chuyển Đổi</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- JS populated -->
+              </tbody>
+            </table>
           </div>
-          <div class="flex items-center space-x-2 overflow-x-auto w-full sm:w-auto">
-            <button onclick="setOrderStatusFilter('all')" id="filter-all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-white transition">Tất cả</button>
-            <button onclick="setOrderStatusFilter('Đo đạc')" id="filter-measure" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Đo đạc</button>
-            <button onclick="setOrderStatusFilter('Cắt phôi')" id="filter-cutting" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Cắt phôi</button>
-            <button onclick="setOrderStatusFilter('Gia công')" id="filter-processing" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Gia công cạnh</button>
-            <button onclick="setOrderStatusFilter('Lắp đặt')" id="filter-install" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Lắp đặt</button>
+        </div>
+      </section>
+
+      <!-- TAB 3: ORDERS (ĐƠN HÀNG & TIẾN ĐỘ 2 NHÁNH) -->
+      <section id="tab-orders" class="space-y-6 tab-content hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Quản Lý Đơn Hàng & Tiến Độ Gia Công</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Theo dõi chi tiết nhánh 45° hoặc nhánh Ghép bo, kèm theo công đoạn phụ động.</p>
           </div>
+          <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/25 transition flex items-center space-x-2">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nhận Đơn Hàng Mới</span>
+          </button>
         </div>
 
         <!-- Orders Table -->
@@ -262,155 +254,15 @@
             <table class="w-full text-left text-sm">
               <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Mã Đơn</th>
-                  <th class="p-4">Khách Hàng & Công Trình</th>
-                  <th class="p-4">Loại Đá & Khối Lượng</th>
-                  <th class="p-4">Tiến Độ Hiện Tại</th>
-                  <th class="p-4">Thanh Toán</th>
+                  <th class="p-4">Mã Đơn & Khách</th>
+                  <th class="p-4">Loại Đá & Kích Thước</th>
+                  <th class="p-4">Nhánh Quy Trình</th>
+                  <th class="p-4">Trạng Thái</th>
                   <th class="p-4 text-right">Thao Tác</th>
                 </tr>
               </thead>
               <tbody id="orders-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 3: INVENTORY -->
-      <section id="tab-inventory" class="space-y-6 tab-content hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Kho Đá & Quản Lý Tồn Kho</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Kiểm soát số lượng tấm đá Granite, Marble, đá nhân tạo và diện tích tồn kho.</p>
-          </div>
-          <button onclick="openNewStoneModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/25 transition flex items-center space-x-2">
-            <i class="fa-solid fa-plus"></i>
-            <span>Nhập Thêm Đá Mới</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Tổng Diện Tích Kho</span>
-            <div class="text-2xl font-bold mt-2 tabular-nums">2,450 m²</div>
-            <p class="text-xs text-slate-500 mt-1">Sức chứa tối đa: 3,000 m²</p>
-          </div>
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Số Lượng Tấm Đá</span>
-            <div class="text-2xl font-bold mt-2 tabular-nums">342 tấm</div>
-            <p class="text-xs text-slate-500 mt-1">Đã cắt phôi: 58 tấm</p>
-          </div>
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Đá Sắp Hết (Cần Nhập)</span>
-            <div class="text-2xl font-bold mt-2 tabular-nums text-amber-600">2 dòng</div>
-            <p class="text-xs text-slate-500 mt-1">Marble trắng Ý, Kim Sa Trung khổ lớn</p>
-          </div>
-        </div>
-
-        <!-- Inventory List -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <h3 class="font-bold text-base">Danh Mục Đá Trong Kho</h3>
-            <div class="flex items-center space-x-2">
-              <select id="stone-category-filter" onchange="filterInventory()" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs">
-                <option value="all">Tất cả chủng loại</option>
-                <option value="Granite">Granite (Đá hoa cương)</option>
-                <option value="Marble">Marble (Đá cẩm thạch)</option>
-                <option value="Nhân tạo">Đá nhân tạo gốc thạch anh</option>
-              </select>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Mã & Tên Mẫu Đá</th>
-                  <th class="p-4">Chủng Loại</th>
-                  <th class="p-4">Khổ Đá (cm)</th>
-                  <th class="p-4">Tồn Kho (Tấm / m²)</th>
-                  <th class="p-4">Đơn Giá Nhập (VNĐ/m²)</th>
-                  <th class="p-4 text-right">Trạng Thái</th>
-                </tr>
-              </thead>
-              <tbody id="inventory-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 4: LABOR -->
-      <section id="tab-labor" class="space-y-6 tab-content hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Phân Công Nhân Công & Thợ</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Quản lý đội ngũ thợ xưởng (cắt, mài, đánh bóng) và thợ lắp đặt công trình.</p>
-          </div>
-          <button onclick="alert('Thêm thợ mới: Tính năng cho phép quản lý thông tin thợ và lương khoán')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/25 transition flex items-center space-x-2">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Thêm Thợ Mới</span>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="labor-cards-grid">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-
-      <!-- TAB 5: FINANCE -->
-      <section id="tab-finance" class="space-y-6 tab-content hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl lg:text-2xl font-bold tracking-tight">Tài Chính & Công Nợ Khách Hàng</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Theo dõi dòng tiền thu, các đợt tạm ứng đơn hàng và công nợ phải thu chi tiết.</p>
-          </div>
-          <button onclick="alert('Xuất báo cáo tài chính Excel/PDF')" class="bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
-            <i class="fa-solid fa-file-excel"></i>
-            <span>Xuất Báo Cáo</span>
-          </button>
-        </div>
-
-        <!-- Finance summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Tổng Thu Tháng Này</span>
-            <div class="text-2xl font-bold text-emerald-600 mt-2 tabular-nums">345,200,000 đ</div>
-            <p class="text-xs text-slate-500 mt-1">Từ 8 đơn hàng đã hoàn thành đợt</p>
-          </div>
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Tổng Tạm Ứng Nhận Trước</span>
-            <div class="text-2xl font-bold text-amber-600 mt-2 tabular-nums">120,500,000 đ</div>
-            <p class="text-xs text-slate-500 mt-1">Dùng để nhập phôi đá</p>
-          </div>
-          <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Công Nợ Khách Hàng Phải Thu</span>
-            <div class="text-2xl font-bold text-rose-600 mt-2 tabular-nums">68,500,000 đ</div>
-            <p class="text-xs text-slate-500 mt-1">4 khách chưa thanh toán đợt cuối</p>
-          </div>
-        </div>
-
-        <!-- Debt table -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-200 dark:border-slate-800">
-            <h3 class="font-bold text-base">Danh Sách Công Nợ Khách Hàng</h3>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead>
-                <tr class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-500 uppercase">
-                  <th class="p-4">Khách Hàng / Công Trình</th>
-                  <th class="p-4">Mã Đơn</th>
-                  <th class="p-4">Tổng Giá Trị</th>
-                  <th class="p-4">Đã Thanh Toán</th>
-                  <th class="p-4">Còn Nợ</th>
-                  <th class="p-4 text-right">Trạng Thái Nợ</th>
-                </tr>
-              </thead>
-              <tbody id="debt-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-                <!-- Populated by JS -->
+                <!-- JS populated -->
               </tbody>
             </table>
           </div>
@@ -424,22 +276,19 @@
   <div id="order-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
-        <div class="flex items-center space-x-2">
-          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-          <h3 class="font-bold text-base" id="modal-order-title">Chi Tiết Đơn Hàng #DH-101</h3>
-        </div>
-        <button onclick="closeOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition">
+        <h3 class="font-bold text-base" id="modal-order-title">Chi Tiết Đơn Hàng</h3>
+        <button onclick="closeOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <div class="p-6 overflow-y-auto space-y-6 flex-1" id="modal-order-body">
-        <!-- Filled dynamically -->
+        <!-- JS populated -->
       </div>
 
       <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3">
-        <button onclick="closeOrderModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition">Đóng</button>
-        <button onclick="saveOrderChanges()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md shadow-amber-600/20 transition">Lưu Thay Đổi</button>
+        <button onclick="closeOrderModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Đóng</button>
+        <button onclick="saveOrderChanges()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Lưu Tiến Độ</button>
       </div>
     </div>
   </div>
@@ -448,147 +297,119 @@
   <div id="new-order-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
-        <h3 class="font-bold text-base">Tạo Đơn Hàng Mới</h3>
-        <button onclick="closeNewOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition">
+        <h3 class="font-bold text-base">Nhận Đơn Hàng Mới (Xưởng Chú Cẩn)</h3>
+        <button onclick="closeNewOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
       <div class="p-6 overflow-y-auto space-y-4 flex-1">
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">Tên Khách Hàng / Công Trình</label>
-          <input type="text" id="new-cust-name" placeholder="VD: Anh Minh - Biệt thự Vinhomes" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Tên Khách / Chủ Thầu</label>
+            <input type="text" id="new-cust-name" placeholder="VD: Anh Nam Thầu" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Số Điện Thoại</label>
+            <input type="text" id="new-cust-phone" placeholder="VD: 0903..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Loại Đá</label>
-            <select id="new-stone-type" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
-              <option>Kim Sa Trung (Granite)</option>
-              <option>Marble Trắng Ý</option>
-              <option>Đá Vàng Cổ Điển</option>
-              <option>Đá Nhân Tạo Thạch Anh</option>
-              <option>Đen Núi Lửa</option>
-            </select>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Loại Đá & Hàng Hóa</label>
+            <input type="text" id="new-stone-type" placeholder="VD: Kim Sa Trung" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Khối Lượng (m² hoặc mét dài)</label>
-            <input type="text" id="new-stone-qty" placeholder="VD: 18.5 m²" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Chọn Nhánh Quy Trình Gia Công</label>
+            <select id="new-branch" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-amber-600">
+              <option value="45">Nhánh A: Ghép 45° (Dừng ở Ghép)</option>
+              <option value="bo">Nhánh B: Ghép bo (Có Đánh bóng)</option>
+            </select>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">Tổng Giá Trị (VNĐ)</label>
-            <input type="text" id="new-total-price" placeholder="VD: 32,500,000" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+            <input type="text" id="new-total-price" placeholder="VD: 12,000,000" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-500 mb-1">Tiền Cọc / Tạm Ứng (VNĐ)</label>
-            <input type="text" id="new-deposit" placeholder="VD: 10,000,000" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Hình Thức Thanh Toán</label>
+            <select id="new-pay-flag" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+              <option value="thu_truoc">Thu cọc trước</option>
+              <option value="thu_sau">Thu sau khi giao hàng</option>
+            </select>
           </div>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-1">Ghi Chú & Yêu Cầu Cạnh (Bo tròn, soi chỉ...)</label>
-          <textarea id="new-notes" rows="3" placeholder="Mặt bếp chữ L, bo cạnh 2cm, khoét âm chậu rửa bát..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"></textarea>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Yêu Cầu Gia Công & Ghi Chú</label>
+          <textarea id="new-notes" rows="3" placeholder="Mặt bếp chữ L, bo cạnh..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"></textarea>
         </div>
       </div>
       <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3">
         <button onclick="closeNewOrderModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Hủy</button>
-        <button onclick="createNewOrder()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Tạo Đơn Ngay</button>
+        <button onclick="createNewOrder()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Tạo Đơn Mới</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Mock Data Store
+    // Data Store chuẩn theo prompt thực tế
+    let currentUser = 'Kudo'; // 'Chú Cẩn' hoặc 'Kudo'
+    function toggleUserRole() {
+      currentUser = currentUser === 'Kudo' ? 'Chú Cẩn' : 'Kudo';
+      document.getElementById('current-user-role').innerText = `Đang dùng: ${currentUser} (${currentUser === 'Chú Cẩn' ? 'Chủ xưởng - Toàn quyền' : 'Hỗ trợ / Thợ'})`;
+      alert(`Đã chuyển vai trò sang: ${currentUser}`);
+    }
+
+    let inventory = [
+      { id: 'INV-01', name: 'Kim Sa Trung (Tấm 1)', ownerType: 'customer', ownerName: 'Anh Nam Thầu (Đơn DH-101)', size: '280 x 160 cm', note: 'Đá khách gửi tự mua' },
+      { id: 'INV-02', name: 'Marble Trắng Ý (2 tấm)', ownerType: 'customer', ownerName: 'Chị Lan (Đơn DH-102)', size: '260 x 140 cm', note: 'Đá khách gửi' },
+      { id: 'INV-03', name: 'Đá Vàng Cổ Điển (Dư)', ownerType: 'shop', ownerName: 'Kho Xưởng (Đá dư đơn DH-104)', size: '120 x 60 cm', note: 'Đá dư khách bỏ lại, tái sử dụng' },
+      { id: 'INV-04', name: 'Đen Núi Lửa (Lỗi cắt bù)', ownerType: 'shop', ownerName: 'Kho Xưởng (Tấm bù lỗi DH-101)', size: '200 x 150 cm', note: 'Đá lỗi xưởng phải bù' }
+    ];
+
     let orders = [
       {
         id: 'DH-101',
-        customer: 'Anh Minh - Biệt thự Vinhomes',
+        customer: 'Anh Nam Thầu',
         phone: '0903 123 456',
-        stone: 'Kim Sa Trung (Granite)',
-        qty: '24.5 m²',
-        status: 'Cắt phôi',
-        total: 45000000,
-        deposit: 15000000,
-        paid: 15000000,
-        notes: 'Bếp chữ L, bo cạnh tròn R5, khoét âm chậu đôi.',
+        stone: 'Kim Sa Trung',
+        branch: '45', // Nhánh A: Ghép 45 độ
+        status: 'dang_ghep_45',
+        total: 12500000,
+        payFlag: 'thu_truoc',
+        notes: 'Bặt bếp chữ L, ghép 45 độ.',
+        extraTasks: [{name: 'Khoét lỗ chậu rửa bát', done: true}],
         steps: [
-          { name: 'Đo đạc & Lên CAD', done: true, date: '10/08/2026', note: 'Đã chốt bản vẽ với khách' },
-          { name: 'Cắt phôi & Xẻ đá', done: true, date: '12/08/2026', note: 'Đã xẻ 3 tấm khổ lớn' },
-          { name: 'Gia công cạnh & Đánh bóng', done: false, date: 'Dự kiến 15/08', note: 'Đang tiến hành bo cạnh' },
-          { name: 'Lắp đặt công trình', done: false, date: 'Dự kiến 18/08', note: 'Chưa giao' }
+          { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
+          { key: 'cat', name: '2. Cắt phôi', done: true },
+          { key: 'ghep_45', name: '3. Ghép 45°', done: true },
+          { key: 'lip_45', name: '4. Líp 45° (Tách Líp mặt + Líp chỉ)', done: true },
+          { key: 'ghep_cuoi_45', name: '5. Ghép (Kết thúc nhánh 45°)', done: false }
         ]
       },
       {
         id: 'DH-102',
-        customer: 'Chị Lan - Nhà phố Quận 7',
+        customer: 'Chị Lan Q.7',
         phone: '0988 765 432',
         stone: 'Marble Trắng Ý',
-        qty: '18.0 m²',
-        status: 'Gia công',
-        total: 38000000,
-        deposit: 20000000,
-        paid: 20000000,
-        notes: 'Ốp cầu thang tay vịn gỗ, cổ bậc đá đen.',
+        branch: 'bo', // Nhánh B: Ghép bo
+        status: 'dang_danh_bong',
+        total: 18000000,
+        payFlag: 'thu_sau',
+        notes: 'Ốp cầu thang tay vịn.',
+        extraTasks: [],
         steps: [
-          { name: 'Đo đạc & Lên CAD', done: true, date: '08/08/2026', note: 'Khảo sát kỹ 21 bậc thang' },
-          { name: 'Cắt phôi & Xẻ đá', done: true, date: '09/08/2026', note: 'Cắt chuẩn kích thước bậc' },
-          { name: 'Gia công cạnh & Đánh bóng', done: true, date: '13/08/2026', note: 'Đã chống thấm 2 lớp' },
-          { name: 'Lắp đặt công trình', done: false, date: 'Dự kiến 16/08', note: 'Chuẩn bị xuất xưởng' }
-        ]
-      },
-      {
-        id: 'DH-103',
-        customer: 'Cty Xây Dựng Nam An',
-        phone: '0912 345 678',
-        stone: 'Đá Nhân Tạo Thạch Anh',
-        qty: '42.0 m²',
-        status: 'Đo đạc',
-        total: 89000000,
-        deposit: 30000000,
-        paid: 30000000,
-        notes: 'Lavabo 8 phòng khách sạn.',
-        steps: [
-          { name: 'Đo đạc & Lên CAD', done: true, date: '13/08/2026', note: 'Đang gửi chủ đầu tư duyệt' },
-          { name: 'Cắt phôi & Xẻ đá', done: false, date: 'Dự kiến 16/08', note: 'Chờ duyệt' },
-          { name: 'Gia công cạnh & Đánh bóng', done: false, date: 'Dự kiến 19/08', note: '-' },
-          { name: 'Lắp đặt công trình', done: false, date: 'Dự kiến 22/08', note: '-' }
-        ]
-      },
-      {
-        id: 'DH-104',
-        customer: 'Chú Hùng - Nhà riêng Bình Thạnh',
-        phone: '0933 999 888',
-        stone: 'Đá Vàng Cổ Điển',
-        qty: '12.5 m²',
-        status: 'Lắp đặt',
-        total: 24000000,
-        deposit: 24000000,
-        paid: 24000000,
-        notes: 'Mặt tiền tam cấp cửa chính.',
-        steps: [
-          { name: 'Đo đạc & Lên CAD', done: true, date: '05/08/2026', note: 'Xong' },
-          { name: 'Cắt phôi & Xẻ đá', done: true, date: '06/08/2026', note: 'Xong' },
-          { name: 'Gia công cạnh & Đánh bóng', done: true, date: '09/08/2026', note: 'Xong' },
-          { name: 'Lắp đặt công trình', done: true, date: '12/08/2026', note: 'Đã nghiệm thu xong với chú Hùng' }
+          { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
+          { key: 'khong_cat', name: '2. Không cắt (Cắt sẵn)', done: true },
+          { key: 'ghep_bo', name: '3. Ghép bo', done: true },
+          { key: 'ghep_giua', name: '4. Ghép', done: true },
+          { key: 'bo_kieu', name: '5. Bo kiểu', done: true },
+          { key: 'danh_bong', name: '6. Đánh bóng (Bắt buộc nhánh Bo)', done: false }
         ]
       }
     ];
 
-    let inventory = [
-      { id: 'ST-01', name: 'Kim Sa Trung', category: 'Granite', size: '280 x 160 x 2cm', count: 45, area: '201 m²', price: 850000, status: 'Ổn định' },
-      { id: 'ST-02', name: 'Marble Trắng Ý (Carrara)', category: 'Marble', size: '260 x 140 x 1.8cm', count: 18, area: '65 m²', price: 1450000, status: 'Sắp hết' },
-      { id: 'ST-03', name: 'Đá Nhân Tạo Thạch Anh Trắng', category: 'Nhân tạo', size: '300 x 160 x 1.5cm', count: 32, area: '153 m²', price: 1200000, status: 'Ổn định' },
-      { id: 'ST-04', name: 'Đen Núi Lửa (Black Galaxy)', category: 'Granite', size: '270 x 150 x 2cm', count: 28, area: '113 m²', price: 920000, status: 'Ổn định' },
-      { id: 'ST-05', name: 'Vàng Hoàng Gia (Imperial Gold)', category: 'Granite', size: '250 x 140 x 2cm', count: 12, area: '42 m²', price: 950000, status: 'Sắp hết' }
-    ];
-
-    let labor = [
-      { name: 'Nguyễn Văn Tuấn', role: 'Thợ Cả / Vận Hành Máy Cắt', phone: '0905 111 222', currentTask: 'Đang cắt phôi đơn #DH-101', status: 'Đang làm việc', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
-      { name: 'Trần Đình Nam', role: 'Thợ Mài Cạnh & Đánh Bóng', phone: '0982 333 444', currentTask: 'Đánh bóng Marble Ý #DH-102', status: 'Đang làm việc', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150' },
-      { name: 'Lê Hoàng Long', role: 'Đội Trưởng Lắp Đặt Công Trình', phone: '0918 555 666', currentTask: 'Lắp đặt công trình #DH-104', status: 'Đang ngoài công trình', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150' },
-      { name: 'Phạm Minh Đức', role: 'Thợ Phụ Kho & Xẻ Thô', phone: '0935 777 888', currentTask: 'Xuất kho đá Kim Sa Trung', status: 'Đang làm việc', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150' }
-    ];
-
-    // Theme toggle
+    // Toggle Theme
     function toggleTheme() {
       document.documentElement.classList.toggle('dark');
     }
@@ -607,10 +428,9 @@
       activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
       activeBtn.classList.add('text-amber-600', 'dark:text-amber-400', 'bg-amber-50', 'dark:bg-amber-950/40');
 
+      if (tabId === 'inventory') renderInventory();
       if (tabId === 'orders') renderOrdersTable();
-      if (tabId === 'inventory') renderInventoryTable();
-      if (tabId === 'labor') renderLaborCards();
-      if (tabId === 'finance') renderFinanceTable();
+      if (tabId === 'dashboard') renderDashboard();
     }
 
     // Format currency
@@ -620,178 +440,124 @@
 
     // Render Dashboard
     function renderDashboard() {
+      document.getElementById('kpi-active-orders').innerText = orders.length;
+      document.getElementById('kpi-cust-stone').innerText = inventory.filter(i => i.ownerType === 'customer').length + ' tấm';
+      document.getElementById('kpi-shop-stone').innerText = inventory.filter(i => i.ownerType === 'shop').length + ' tấm';
+
       const tbody = document.getElementById('dashboard-orders-list');
-      tbody.innerHTML = orders.slice(0, 4).map(o => `
+      tbody.innerHTML = orders.map(o => `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="py-3 font-semibold text-amber-600 dark:text-amber-400 cursor-pointer" onclick="openOrderModal('${o.id}')">${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span></td>
-          <td class="py-3 text-slate-600 dark:text-slate-300">${o.stone}</td>
+          <td class="py-3 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
+            ${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span>
+          </td>
           <td class="py-3">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(o.status)}">${o.status}</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${o.branch === '45' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950' : 'bg-purple-50 text-purple-600 dark:bg-purple-950'}">
+              ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
+            </span>
+          </td>
+          <td class="py-3">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 dark:bg-amber-950/50">Đang xử lý</span>
           </td>
           <td class="py-3 text-right font-bold tabular-nums">${formatMoney(o.total)}</td>
         </tr>
       `).join('');
     }
 
-    function getStatusBadgeClass(status) {
-      switch(status) {
-        case 'Đo đạc': return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
-        case 'Cắt phôi': return 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400';
-        case 'Gia công': return 'bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400';
-        case 'Lắp đặt': return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
-        default: return 'bg-slate-100 text-slate-600';
-      }
-    }
-
-    // Render Orders
-    let currentOrderStatusFilter = 'all';
-    function setOrderStatusFilter(status) {
-      currentOrderStatusFilter = status;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-amber-500', 'text-white');
-        btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
-      });
-      const activeId = status === 'all' ? 'filter-all' : status === 'Đo đạc' ? 'filter-measure' : status === 'Cắt phôi' ? 'filter-cutting' : status === 'Gia công' ? 'filter-processing' : 'filter-install';
-      document.getElementById(activeId).classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300');
-      document.getElementById(activeId).classList.add('bg-amber-500', 'text-white');
-      renderOrdersTable();
-    }
-
-    function filterOrders() {
-      renderOrdersTable();
-    }
-
-    function renderOrdersTable() {
-      const query = document.getElementById('order-search').value.toLowerCase();
-      const tbody = document.getElementById('orders-table-body');
-
-      let filtered = orders.filter(o => {
-        const matchStatus = currentOrderStatusFilter === 'all' || o.status === currentOrderStatusFilter;
-        const matchQuery = o.customer.toLowerCase().includes(query) || o.id.toLowerCase().includes(query) || o.stone.toLowerCase().includes(query);
-        return matchStatus && matchQuery;
-      });
-
-      tbody.innerHTML = filtered.map(o => {
-        const debt = o.total - o.paid;
-        return `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <td class="p-4 font-bold text-amber-600 dark:text-amber-400">
-              <a href="#" onclick="openOrderModal('${o.id}'); return false;">${o.id}</a>
-            </td>
-            <td class="p-4">
-              <div class="font-semibold">${o.customer}</div>
-              <div class="text-xs text-slate-500">${o.phone}</div>
-            </td>
-            <td class="p-4">
-              <div>${o.stone}</div>
-              <div class="text-xs text-slate-500 font-medium">${o.qty}</div>
-            </td>
-            <td class="p-4">
-              <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(o.status)}">${o.status}</span>
-            </td>
-            <td class="p-4">
-              <div class="font-bold tabular-nums">${formatMoney(o.total)}</div>
-              <div class="text-xs ${debt > 0 ? 'text-rose-600 font-semibold' : 'text-emerald-600'}">
-                ${debt > 0 ? `Còn nợ: ${formatMoney(debt)}` : 'Đã thanh toán đủ'}
-              </div>
-            </td>
-            <td class="p-4 text-right">
-              <button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-xs font-semibold transition">
-                Chi tiết <i class="fa-solid fa-arrow-right ml-1"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
     // Render Inventory
-    function filterInventory() {
-      renderInventoryTable();
+    let currentInvTab = 'customer';
+    function setInventoryTab(tab) {
+      currentInvTab = tab;
+      ['cust', 'shop', 'fin'].forEach(t => {
+        const btn = document.getElementById(`inv-tab-${t}`);
+        btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition ' + (
+          (tab === 'customer' && t === 'cust') || (tab === 'shop' && t === 'shop') || (tab === 'finished' && t === 'fin')
+          ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+        );
+      });
+      renderInventory();
     }
 
-    function renderInventoryTable() {
-      const cat = document.getElementById('stone-category-filter').value;
+    function renderInventory() {
       const tbody = document.getElementById('inventory-table-body');
+      let filtered = [];
+      if (currentInvTab === 'customer') {
+        filtered = inventory.filter(i => i.ownerType === 'customer');
+      } else if (currentInvTab === 'shop') {
+        filtered = inventory.filter(i => i.ownerType === 'shop');
+      } else {
+        // finished goods mock
+        tbody.innerHTML = `
+          <tr><td colspan="5" class="p-6 text-center text-slate-400">Kho thành phẩm trống hoặc đã xuất giao công trình.</td></tr>
+        `;
+        return;
+      }
 
-      let filtered = inventory.filter(s => cat === 'all' || s.category === cat);
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Không có tấm đá nào trong mục này.</td></tr>`;
+        return;
+      }
 
-      tbody.innerHTML = filtered.map(s => `
+      tbody.innerHTML = filtered.map(item => `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <td class="p-4 font-semibold">${item.name} <span class="block text-xs text-slate-400">Mã: ${item.id}</span></td>
           <td class="p-4">
-            <div class="font-semibold">${s.name}</div>
-            <div class="text-xs text-slate-500">${s.id}</div>
-          </td>
-          <td class="p-4">
-            <span class="px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">${s.category}</span>
-          </td>
-          <td class="p-4 text-slate-600 dark:text-slate-300 tabular-nums">${s.size}</td>
-          <td class="p-4">
-            <div class="font-bold tabular-nums">${s.count} tấm</div>
-            <div class="text-xs text-slate-500">${s.area}</div>
-          </td>
-          <td class="p-4 font-bold tabular-nums">${formatMoney(s.price)}</td>
-          <td class="p-4 text-right">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${s.status === 'Ổn định' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400'}">
-              ${s.status}
+            <span class="px-2 py-1 rounded text-xs font-bold ${item.ownerType === 'customer' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}">
+              ${item.ownerType === 'customer' ? 'Khách gửi' : 'Sở hữu Kho'}
             </span>
+            <div class="text-xs text-slate-500 mt-0.5">${item.ownerName}</div>
+          </td>
+          <td class="p-4 tabular-nums text-slate-600 dark:text-slate-300">${item.size}</td>
+          <td class="p-4 text-xs text-slate-500">${item.note}</td>
+          <td class="p-4 text-right">
+            <button onclick="transferOwnership('${item.id}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950 text-amber-600 hover:bg-amber-100 rounded-lg text-xs font-semibold transition">
+              <i class="fa-solid fa-exchange-alt mr-1"></i> Chuyển sở hữu
+            </button>
           </td>
         </tr>
       `).join('');
     }
 
-    // Render Labor
-    function renderLaborCards() {
-      const grid = document.getElementById('labor-cards-grid');
-      grid.innerHTML = labor.map(l => `
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="flex items-center space-x-4 mb-4">
-              <img src="${l.avatar}" alt="${l.name}" class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-500/20 shadow-md">
-              <div>
-                <h3 class="font-bold text-base">${l.name}</h3>
-                <p class="text-xs text-amber-600 dark:text-amber-400 font-medium">${l.role}</p>
-                <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-phone mr-1"></i>${l.phone}</p>
-              </div>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl space-y-1 mb-4">
-              <span class="text-xs font-semibold text-slate-400 uppercase">Nhiệm Vụ Hiện Tại</span>
-              <p class="text-sm font-medium text-slate-700 dark:text-slate-200">${l.currentTask}</p>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
-            <span class="inline-flex items-center text-xs font-semibold text-emerald-600">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-              ${l.status}
-            </span>
-            <button onclick="alert('Đã gửi thông báo công việc cho ${l.name}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 hover:bg-amber-100 rounded-xl text-xs font-semibold transition">
-              Giao việc
-            </button>
-          </div>
-        </div>
-      `).join('');
+    function transferOwnership(id) {
+      const item = inventory.find(i => i.id === id);
+      if (!item) return;
+      if (item.ownerType === 'customer') {
+        if (confirm(`Chuyển tấm đá ${item.name} từ "Khách gửi" sang "Kho xưởng" (do đá dư hoặc đá lỗi bù)?`)) {
+          item.ownerType = 'shop';
+          item.ownerName = 'Kho Xưởng (Đá dư/lỗi thu hồi)';
+          renderInventory();
+          alert('Đã chuyển sở hữu tấm đá về kho xưởng thành công!');
+        }
+      } else {
+        alert('Tấm đá này hiện đã thuộc sở hữu kho xưởng.');
+      }
     }
 
-    // Render Finance / Debt Table
-    function renderFinanceTable() {
-      const tbody = document.getElementById('debt-table-body');
-      tbody.innerHTML = orders.map(o => {
-        const debt = o.total - o.paid;
-        return `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-            <td class="p-4 font-semibold">${o.customer}</td>
-            <td class="p-4 text-amber-600 dark:text-amber-400 font-bold">${o.id}</td>
-            <td class="p-4 font-bold tabular-nums">${formatMoney(o.total)}</td>
-            <td class="p-4 text-emerald-600 tabular-nums">${formatMoney(o.paid)}</td>
-            <td class="p-4 font-bold tabular-nums ${debt > 0 ? 'text-rose-600' : 'text-slate-500'}">${formatMoney(debt)}</td>
-            <td class="p-4 text-right">
-              <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${debt > 0 ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400'}">
-                ${debt > 0 ? 'Còn nợ' : 'Đã tất toán'}
-              </span>
-            </td>
-          </tr>
-        `;
-      }).join('');
+    // Render Orders
+    function renderOrdersTable() {
+      const tbody = document.getElementById('orders-table-body');
+      tbody.innerHTML = orders.map(o => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <td class="p-4 font-bold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
+            ${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span>
+          </td>
+          <td class="p-4">
+            <div class="font-semibold">${o.stone}</div>
+          </td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.branch === '45' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'}">
+              ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
+            </span>
+          </td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600">Đang thực hiện</span>
+          </td>
+          <td class="p-4 text-right">
+            <button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">
+              Cập nhật tiến độ <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
     }
 
     // Order Modal Logic
@@ -801,64 +567,43 @@
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
 
-      document.getElementById('modal-order-title').innerText = `Chi Tiết Đơn Hàng #${order.id} - ${order.customer}`;
+      document.getElementById('modal-order-title').innerText = `Đơn Hàng #${order.id} - ${order.customer} (${order.branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'})`;
 
       const body = document.getElementById('modal-order-body');
       body.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl">
-          <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase">Khách Hàng & Điện Thoại</span>
-            <div class="font-bold text-sm mt-0.5">${order.customer}</div>
-            <div class="text-xs text-slate-500">${order.phone}</div>
-          </div>
-          <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase">Loại Đá & Khối Lượng</span>
-            <div class="font-bold text-sm mt-0.5">${order.stone}</div>
-            <div class="text-xs text-slate-500">${order.qty}</div>
-          </div>
-          <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase">Tổng Giá Trị & Đã Trả</span>
-            <div class="font-bold text-sm text-emerald-600 mt-0.5">${formatMoney(order.total)} (Đã cọc: ${formatMoney(order.deposit)})</div>
-          </div>
-          <div>
-            <span class="text-xs font-semibold text-slate-400 uppercase">Ghi Chú Gia Công</span>
-            <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">${order.notes}</div>
-          </div>
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl text-xs">
+          <div><span class="text-slate-400 block">Khách hàng:</span> <strong class="text-sm">${order.customer} (${order.phone})</strong></div>
+          <div><span class="text-slate-400 block">Loại đá:</span> <strong class="text-sm">${order.stone}</strong></div>
+          <div><span class="text-slate-400 block">Tổng tiền:</span> <strong class="text-emerald-600 text-sm">${formatMoney(order.total)}</strong></div>
+          <div><span class="text-slate-400 block">Thanh toán:</span> <strong>${order.payFlag === 'thu_truoc' ? 'Thu cọc trước' : 'Thu sau giao'}</strong></div>
         </div>
 
         <div>
-          <h4 class="font-bold text-sm mb-3">Cập Nhật Tiến Độ Sản Xuất & Lắp Đặt</h4>
-          <div class="space-y-3">
+          <h4 class="font-bold text-sm mb-3">Các bước gia công chuẩn theo nhánh (${order.branch === '45' ? 'Ghép 45°' : 'Ghép Bo'})</h4>
+          <div class="space-y-2.5">
             ${order.steps.map((s, idx) => `
               <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                 <div class="flex items-center space-x-3">
-                  <input type="checkbox" id="step-check-${idx}" ${s.done ? 'checked' : ''} onchange="toggleStep('${order.id}', ${idx})" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500">
-                  <div>
-                    <label for="step-check-${idx}" class="text-sm font-semibold cursor-pointer">${s.name}</label>
-                    <p class="text-xs text-slate-400">${s.note} (${s.date})</p>
-                  </div>
+                  <input type="checkbox" id="step-${idx}" ${s.done ? 'checked' : ''} onchange="toggleStepItem('${order.id}', ${idx})" class="w-4 h-4 rounded text-amber-600">
+                  <label for="step-${idx}" class="text-xs font-bold cursor-pointer">${s.name}</label>
                 </div>
-                <span class="px-2 py-1 rounded-md text-xs font-semibold ${s.done ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-slate-100 text-slate-500'}">
-                  ${s.done ? 'Hoàn thành' : 'Đang chờ'}
+                <span class="text-xs px-2 py-0.5 rounded ${s.done ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}">
+                  ${s.done ? 'Xong' : 'Chờ'}
                 </span>
               </div>
             `).join('')}
           </div>
         </div>
 
-        <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 p-4 rounded-2xl flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold">
-              <i class="fa-solid fa-camera"></i>
-            </div>
-            <div>
-              <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300">Hình ảnh thực tế công trình / tấm đá</h5>
-              <p class="text-xs text-slate-500">Đã đính kèm 3 ảnh khảo sát & gia công cạnh.</p>
-            </div>
+        <div class="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 space-y-2">
+          <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300"><i class="fa-solid fa-plus-circle mr-1"></i> Công đoạn phụ động phát sinh (Khoét lavabo, khoan lỗ...)</h5>
+          <div id="extra-tasks-list" class="space-y-1">
+            ${order.extraTasks.map(et => `<div class="text-xs bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border flex justify-between items-center"><span>✓ ${et.name}</span><span class="text-emerald-600 text-[10px]">Đã thêm</span></div>`).join('')}
           </div>
-          <button onclick="alert('Mở thư viện ảnh chụp thực tế đơn hàng')" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold transition">
-            Xem ảnh
-          </button>
+          <div class="flex space-x-2 pt-2">
+            <input type="text" id="new-extra-task-input" placeholder="Nhập tên công đoạn phát sinh..." class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-xs">
+            <button onclick="addExtraTask('${order.id}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-xl text-xs font-semibold">Thêm</button>
+          </div>
         </div>
       `;
 
@@ -871,16 +616,22 @@
       document.getElementById('order-modal').classList.add('hidden');
     }
 
-    function toggleStep(orderId, stepIdx) {
+    function toggleStepItem(orderId, stepIdx) {
       const order = orders.find(o => o.id === orderId);
       if (order && order.steps[stepIdx]) {
         order.steps[stepIdx].done = !order.steps[stepIdx].done;
-        // update main status based on completed steps
-        const completedCount = order.steps.filter(s => s.done).length;
-        if (completedCount === 4) order.status = 'Lắp đặt';
-        else if (completedCount === 3) order.status = 'Gia công';
-        else if (completedCount === 2) order.status = 'Cắt phôi';
-        else order.status = 'Đo đạc';
+      }
+    }
+
+    function addExtraTask(orderId) {
+      const input = document.getElementById('new-extra-task-input');
+      const val = input.value.trim();
+      if (!val) return;
+      const order = orders.find(o => o.id === orderId);
+      if (order) {
+        order.extraTasks.push({ name: val, done: true });
+        input.value = '';
+        openOrderModal(orderId);
       }
     }
 
@@ -888,7 +639,7 @@
       closeOrderModal();
       renderDashboard();
       renderOrdersTable();
-      alert('Đã cập nhật tiến độ đơn hàng thành công!');
+      alert('Đã lưu tiến độ gia công thành công!');
     }
 
     // New Order Modal
@@ -903,46 +654,56 @@
     }
 
     function createNewOrder() {
-      const name = document.getElementById('new-cust-name').value;
-      const stone = document.getElementById('new-stone-type').value;
-      const qty = document.getElementById('new-stone-qty').value;
-      const total = parseInt(document.getElementById('new-total-price').value.replace(/\D/g, '')) || 25000000;
-      const deposit = parseInt(document.getElementById('new-deposit').value.replace(/\D/g, '')) || 10000000;
-      const notes = document.getElementById('new-notes').value;
+      const name = document.getElementById('new-cust-name').value.trim();
+      const phone = document.getElementById('new-cust-phone').value.trim();
+      const stone = document.getElementById('new-stone-type').value.trim();
+      const branch = document.getElementById('new-branch').value;
+      const total = parseInt(document.getElementById('new-total-price').value.replace(/\D/g, '')) || 10000000;
+      const payFlag = document.getElementById('new-pay-flag').value;
+      const notes = document.getElementById('new-notes').value.trim();
 
-      if (!name) {
-        alert('Vui lòng nhập tên khách hàng!');
+      if (!name || !stone) {
+        alert('Vui lòng nhập tên khách và loại đá!');
         return;
       }
 
       const newId = 'DH-' + (100 + orders.length + 1);
-      const newOrder = {
+      const steps = branch === '45' ? [
+        { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
+        { key: 'cat', name: '2. Cắt phôi', done: false },
+        { key: 'ghep_45', name: '3. Ghép 45°', done: false },
+        { key: 'lip_45', name: '4. Líp 45° (Tách Líp mặt + Líp chỉ)', done: false },
+        { key: 'ghep_cuoi_45', name: '5. Ghép (Kết thúc nhánh 45°)', done: false }
+      ] : [
+        { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
+        { key: 'khong_cat', name: '2. Không cắt (Cắt sẵn)', done: false },
+        { key: 'ghep_bo', name: '3. Ghép bo', done: false },
+        { key: 'ghep_giua', name: '4. Ghép', done: false },
+        { key: 'bo_kieu', name: '5. Bo kiểu', done: false },
+        { key: 'danh_bong', name: '6. Đánh bóng (Bắt buộc nhánh Bo)', done: false }
+      ];
+
+      orders.unshift({
         id: newId,
         customer: name,
-        phone: '0909 000 111',
+        phone: phone || '0900...',
         stone: stone,
-        qty: qty || '15 m²',
-        status: 'Đo đạc',
+        branch: branch,
+        status: 'moi_nhan',
         total: total,
-        deposit: deposit,
-        paid: deposit,
-        notes: notes || 'Đơn hàng mới tạo',
-        steps: [
-          { name: 'Đo đạc & Lên CAD', done: true, date: '14/08/2026', note: 'Mới tiếp nhận' },
-          { name: 'Cắt phôi & Xẻ đá', done: false, date: 'Dự kiến 16/08', note: '-' },
-          { name: 'Gia công cạnh & Đánh bóng', done: false, date: 'Dự kiến 18/08', note: '-' },
-          { name: 'Lắp đặt công trình', done: false, date: 'Dự kiến 20/08', note: '-' }
-        ]
-      };
+        payFlag: payFlag,
+        notes: notes,
+        extraTasks: [],
+        steps: steps
+      });
 
-      orders.unshift(newOrder);
       closeNewOrderModal();
       renderDashboard();
       renderOrdersTable();
-      alert(`Đã tạo thành công đơn hàng mới: ${newId}`);
+      alert(`Đã nhận đơn hàng mới ${newId} (${branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'}) thành công!`);
     }
 
-    // Initialize
+    // Init
     renderDashboard();
     renderOrdersTable();
   </script>

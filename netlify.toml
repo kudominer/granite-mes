@@ -1,0 +1,12 @@
+# Netlify config cho granite-mes (app HTML tĩnh)
+[build]
+  publish = "."          # thư mục chứa file web (gốc repo)
+  command = ""           # không cần build (HTML thuần)
+
+# Trang chủ mặc định
+[[redirects]]
+  from = "/"
+  to = "/granite_flow_manager.html"
+  status = 200
+
+# Password Protection đã bật trên dashboard Netlify (gói Starter hỗ trợ)
