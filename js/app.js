@@ -136,6 +136,7 @@
           item.ownerType = 'shop';
           item.ownerName = 'Kho Xưởng (Đá dư/lỗi thu hồi)';
           renderInventory();
+          saveInventoryToSupabase(item);
           alert('Đã chuyển sở hữu tấm đá về kho xưởng thành công!');
         }
       } else {
@@ -342,6 +343,8 @@
       closeNewOrderModal();
       renderDashboard();
       renderOrdersTable();
+      const newOrder = orders.find(o => o.id === newId);
+      if (newOrder) saveOrderToSupabase(newOrder);
       alert(`Đã nhận đơn hàng mới ${newId} (${branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'}) thành công!`);
     }
 
@@ -401,6 +404,7 @@
         closeReceiveStoneModal();
         if (currentInvTab !== 'customer') setInventoryTab('customer');
         else renderInventory();
+        saveInventoryToSupabase(inventory[0]);
         alert(`Đã nhận đá "${ma}" từ ${cust} (${qty} tấm) và lưu vào kho khách gửi!`);
       };
 
@@ -501,6 +505,7 @@
       order.slabs = slabs;
       closeSlabTable();
       openOrderModal(slabOrderId);
+      saveOrderToSupabase(order);
       alert(`Đã lưu ${slabs.length} tấm vào đơn ${order.id}!`);
     }
 
@@ -514,6 +519,7 @@
       reader.onload = function(ev) {
         order.photos.push(ev.target.result);
         openOrderModal(orderId); // render lại để hiện ảnh
+        saveOrderToSupabase(order);
       };
       reader.readAsDataURL(file);
       input.value = '';
@@ -556,11 +562,18 @@
         item.photo = ev.target.result;
         closeEditPhotoModal();
         renderInventory();
+        saveInventoryToSupabase(item);
         alert('Đã lưu ảnh cho ' + item.name + '!');
       };
       reader.readAsDataURL(file);
     }
 
     // Init
-    renderDashboard();
-    renderOrdersTable();
+    (async function initApp() {
+      initSupabase();
+      await loadAllFromSupabase();
+      renderDashboard();
+      renderOrdersTable();
+      if (typeof renderInventory === 'function') renderInventory();
+      console.log('[StoneFlow] Khởi tạo xong. Supabase:', sbClient ? 'OK' : 'OFF (dùng bộ nhớ tạm)');
+    })();
