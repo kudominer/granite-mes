@@ -115,9 +115,14 @@
           </td>
           <td class="p-4 text-xs text-slate-500" data-label="Ghi Chú">${item.note}</td>
           <td class="p-4 text-right" data-label="Thao Tác">
-            <button onclick="transferOwnership('${item.id}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950 text-amber-600 hover:bg-amber-100 rounded-lg text-xs font-semibold transition">
-              <i class="fa-solid fa-exchange-alt mr-1"></i> Chuyển sở hữu
-            </button>
+            <div class="flex flex-col items-end space-y-1.5">
+              <button onclick="openEditPhotoModal('${item.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">
+                <i class="fa-solid fa-camera mr-1"></i> ${item.photo ? 'Sửa ảnh' : 'Thêm ảnh'}
+              </button>
+              <button onclick="transferOwnership('${item.id}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950 text-amber-600 hover:bg-amber-100 rounded-lg text-xs font-semibold transition">
+                <i class="fa-solid fa-exchange-alt mr-1"></i> Chuyển sở hữu
+              </button>
+            </div>
           </td>
         </tr>
       `).join('');
@@ -209,6 +214,24 @@
           <div class="flex space-x-2 pt-2">
             <input type="text" id="new-extra-task-input" placeholder="Nhập tên công đoạn phát sinh..." class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-xs">
             <button onclick="addExtraTask('${order.id}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-xl text-xs font-semibold">Thêm</button>
+          </div>
+        </div>
+        <div class="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-emerald-800 dark:text-emerald-300"><i class="fa-solid fa-layer-group mr-1"></i> Danh sách tấm đá (${order.slabs ? order.slabs.length : 0} tấm)</h5>
+            <button onclick="addSlab('${order.id}')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold">+ Thêm tấm</button>
+          </div>
+          <div id="slabs-list" class="space-y-1.5">
+            ${(order.slabs || []).map((s, i) => `
+              <div class="text-xs bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
+                <div class="flex-1">
+                  <strong>#${i+1}</strong> ${s.dai} x ${s.rong} cm · <span class="text-emerald-600 font-semibold">${s.kieu}</span>
+                  ${s.note ? `<div class="text-slate-400 text-[11px]">${s.note}</div>` : ''}
+                </div>
+                <div class="text-right text-emerald-600 font-bold tabular-nums">${formatMoney(s.donGia)}</div>
+              </div>
+            `).join('')}
+            ${(!order.slabs || order.slabs.length === 0) ? '<div class="text-xs text-slate-400 text-center py-1">Chưa có tấm nào. Bấm "+ Thêm tấm" để nhập.</div>' : ''}
           </div>
         </div>
       `;
@@ -375,6 +398,72 @@
       } else {
         doSave('');
       }
+    }
+
+    function addSlab(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      if (!order.slabs) order.slabs = [];
+      // Tạm dùng prompt để nhập nhanh (sẽ làm form chuyên dụng khi hội ý xong)
+      const dai = prompt('Chiều dài tấm (cm):', '100');
+      if (dai === null) return;
+      const rong = prompt('Chiều rộng tấm (cm):', '60');
+      if (rong === null) return;
+      const kieu = prompt('Kiểu gia công cạnh (VD: Ghép 45°, Ghép bo, Bo viền...):', 'Ghép 45°');
+      if (kieu === null) return;
+      const donGia = prompt('Đơn giá tấm (VNĐ):', '1500000');
+      if (donGia === null) return;
+      const note = prompt('Ghi chú (tuỳ chọn):', '') || '';
+      order.slabs.push({
+        dai: parseFloat(dai) || 0,
+        rong: parseFloat(rong) || 0,
+        kieu: kieu,
+        donGia: parseInt((donGia || '0').replace(/\D/g, '')) || 0,
+        note: note
+      });
+      openOrderModal(orderId); // render lại modal
+    }
+
+    // Edit Photo (thêm/sửa ảnh đá trong kho)
+    let editPhotoId = null;
+    function openEditPhotoModal(id) {
+      const item = inventory.find(i => i.id === id);
+      if (!item) return;
+      editPhotoId = id;
+      document.getElementById('edit-photo-name').innerText = `${item.name} (${item.id})`;
+      document.getElementById('edit-photo-input').value = '';
+      document.getElementById('edit-photo-preview').classList.add('hidden');
+      document.getElementById('edit-photo-modal').classList.remove('hidden');
+      document.getElementById('edit-photo-modal').classList.add('flex');
+    }
+    function closeEditPhotoModal() {
+      document.getElementById('edit-photo-modal').classList.remove('flex');
+      document.getElementById('edit-photo-modal').classList.add('hidden');
+      editPhotoId = null;
+    }
+    document.getElementById('edit-photo-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('edit-photo-img').src = ev.target.result;
+        document.getElementById('edit-photo-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+    function saveEditPhoto() {
+      if (!editPhotoId) return;
+      const item = inventory.find(i => i.id === editPhotoId);
+      const file = document.getElementById('edit-photo-input').files[0];
+      if (!file) { alert('Vui lòng chọn ảnh!'); return; }
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        item.photo = ev.target.result;
+        closeEditPhotoModal();
+        renderInventory();
+        alert('Đã lưu ảnh cho ' + item.name + '!');
+      };
+      reader.readAsDataURL(file);
     }
 
     // Init
