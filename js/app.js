@@ -287,20 +287,7 @@
             <button onclick="openReceiveStoneModal('${order.id}')" class="px-2.5 py-1 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700">+ Nhận đá</button>
           </div>
           <div id="order-inventory" class="space-y-1.5">
-            ${orderInventory(order.id).length === 0 ? '<div class="text-sm text-slate-500 dark:text-slate-400 text-center py-1">Chưa có đá nhập. Muốn gia công phải nhập đá trước.</div>' : orderInventory(order.id).map(iv => `
-              <div class="text-sm bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center space-x-2">
-                    ${iv.photo ? `<img src="${iv.photo}" class="w-9 h-9 object-cover rounded-lg border border-slate-200 dark:border-slate-700">` : '<div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs"><i class="fa-solid fa-image"></i></div>'}
-                    <div class="min-w-0">
-                      <strong>${iv.name}</strong> <span class="text-xs text-slate-400">(${iv.id})</span>
-                      <div class="text-xs text-slate-500">${iv.size}${iv.qty ? ` · ${iv.qty} tấm` : ''}${iv.note ? ' · ' + iv.note : ''}</div>
-                    </div>
-                  </div>
-                </div>
-                <button onclick="openEditPhotoModal('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-camera mr-1"></i>${iv.photo ? 'Sửa' : 'Ảnh'}</button>
-              </div>
-            `).join('')}
+            ${orderInventory(order.id).length === 0 ? '<div class="text-sm text-slate-500 dark:text-slate-400 text-center py-1">Chưa có đá nhập. Muốn gia công phải nhập đá trước.</div>' : renderOrderInvItems(order.id)}
           </div>
         </div>
 
@@ -337,9 +324,17 @@
                 </label>
                 <span class="text-xs ${w.catQuyCach ? 'text-emerald-600' : 'text-slate-400'}">${w.catQuyCach ? '✓ Đã cắt' : 'Chưa'}</span>
               </div>
-              <div class="px-3">
-                <label class="block text-xs font-semibold text-slate-500 mb-1">Số liệu cắt (Dài x Rộng, cách nhau dấu phẩy)</label>
-                <input type="text" id="wf-solieu" value="${w.soLieuCat}" onchange="setWorkflowText('${order.id}','soLieuCat',this.value)" placeholder="VD: 280x60, 160x60" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+              <div class="px-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-semibold text-slate-500">Số liệu cắt (Dài x Rộng)</label>
+                  <button onclick="toggleCutAdd('${order.id}')" class="text-xs font-semibold text-amber-600">＋ Thêm miếng cắt</button>
+                </div>
+                ${renderCutPieces(order.id)}
+                ${cutAddingOrder === order.id ? `
+                  <div class="flex space-x-2">
+                    <input id="new-cut-input" placeholder="VD: 100x60" class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-sm">
+                    <button onclick="addCutPiece('${order.id}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-xl text-sm font-semibold">Thêm</button>
+                  </div>` : ''}
               </div>
             ` : ''}
 
@@ -471,6 +466,145 @@
     // Lọc đá nhập thuộc đơn (nối theo mã đơn trong ownerName, format "(Đơn DH-xxx)")
     function orderInventory(orderId) {
       return inventory.filter(i => i.ownerName && i.ownerName.includes('(Đơn ' + orderId + ')'));
+    }
+
+    // ===== Danh sách Đá Nhập trong modal đơn: thu gọn + sửa kích thước inline =====
+    let invExpandedOrder = null;   // orderId đang sổ hết danh sách đá nhập
+    let invSizeEditId = null;      // tấm đang mở ô sửa kích thước
+    const MAX_INV_ITEMS = 3;       // số tấm hiện trước khi thu gọn
+
+    function renderOrderInvItems(orderId) {
+      const items = orderInventory(orderId);
+      const showAll = invExpandedOrder === orderId;
+      const visible = showAll ? items : items.slice(0, MAX_INV_ITEMS);
+      const hidden = items.length - visible.length;
+      return `
+        ${visible.map(iv => `
+          <div class="text-sm bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-start gap-2">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                ${iv.photo ? `<img src="${iv.photo}" class="w-9 h-9 object-cover rounded-lg border border-slate-200 dark:border-slate-700">` : '<div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs"><i class="fa-solid fa-image"></i></div>'}
+                <div class="min-w-0">
+                  <strong>${iv.name}</strong> <span class="text-xs text-slate-400">(${iv.id})</span>
+                  <div class="text-xs text-slate-500">${iv.size}${iv.qty ? ` · ${iv.qty} tấm` : ''}${iv.note ? ' · ' + iv.note : ''}</div>
+                </div>
+              </div>
+              <!-- Ô sửa kích thước inline (bấm nút "Kích thước" để mở) -->
+              <div id="inv-size-edit-${iv.id}" class="hidden mt-2 flex items-center gap-2">
+                <input id="inv-size-dai-${iv.id}" type="number" min="0" placeholder="Dài" class="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-800 border rounded-lg text-sm">
+                <span class="text-slate-400 font-bold">×</span>
+                <input id="inv-size-rong-${iv.id}" type="number" min="0" placeholder="Rộng" class="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-800 border rounded-lg text-sm">
+                <span class="text-xs text-slate-400 shrink-0">cm</span>
+                <button onclick="saveInvSize('${iv.id}')" class="px-2 py-1 bg-teal-600 text-white rounded-lg text-xs font-semibold">Lưu</button>
+                <button onclick="toggleInvSizeEdit('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">Hủy</button>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              <button onclick="toggleInvSizeEdit('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-ruler mr-1"></i>Kích thước</button>
+              <button onclick="openEditPhotoModal('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-camera mr-1"></i>${iv.photo ? 'Sửa' : 'Ảnh'}</button>
+            </div>
+          </div>
+        `).join('')}
+        ${hidden > 0 ? `<button onclick="toggleInvExpanded('${orderId}')" class="w-full text-center text-xs font-semibold text-teal-600 hover:text-teal-700 py-1">${showAll ? '▲ Thu gọn' : `▶ Xem thêm ${hidden} tấm ▾`}</button>` : ''}
+      `;
+    }
+
+    function toggleInvExpanded(orderId) {
+      invExpandedOrder = invExpandedOrder === orderId ? null : orderId;
+      if (activeOrderId) openOrderModal(activeOrderId);
+    }
+
+    // Mở/đóng ô sửa kích thước của 1 tấm (chỉ mở 1 tấm tại 1 thời điểm)
+    function toggleInvSizeEdit(id) {
+      if (invSizeEditId && invSizeEditId !== id) {
+        const prev = document.getElementById('inv-size-edit-' + invSizeEditId);
+        if (prev) prev.classList.add('hidden');
+      }
+      const el = document.getElementById('inv-size-edit-' + id);
+      if (!el) return;
+      const opening = el.classList.contains('hidden');
+      if (opening) {
+        const item = inventory.find(i => i.id === id);
+        const m = (item.size || '').match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+        document.getElementById('inv-size-dai-' + id).value = m ? m[1] : '';
+        document.getElementById('inv-size-rong-' + id).value = m ? m[2] : '';
+        el.classList.remove('hidden');
+        invSizeEditId = id;
+      } else {
+        el.classList.add('hidden');
+        invSizeEditId = null;
+      }
+    }
+
+    // Lưu kích thước sửa tay cho tấm đã nhập
+    function saveInvSize(id) {
+      const item = inventory.find(i => i.id === id);
+      if (!item) return;
+      const dai = document.getElementById('inv-size-dai-' + id).value.trim();
+      const rong = document.getElementById('inv-size-rong-' + id).value.trim();
+      item.size = (dai && rong) ? `${dai} x ${rong} cm` : (dai ? `${dai} cm` : (rong ? `${rong} cm` : 'Chưa đo'));
+      invSizeEditId = null;
+      saveInventoryToSupabase(item);
+      if (activeOrderId) openOrderModal(activeOrderId);
+      else renderInventory();
+    }
+
+    // ===== Danh sách miếng cắt quy cách: chips + thu gọn + thêm/xóa =====
+    let cutExpandedOrder = null;   // orderId đang sổ hết miếng cắt
+    let cutAddingOrder = null;     // orderId đang hiện ô thêm miếng cắt
+    const MAX_CUT_PIECES = 3;      // số miếng hiện trước khi thu gọn
+
+    function renderCutPieces(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return '';
+      const cuts = (order.workflow.soLieuCat || '').split(',').map(s => s.trim()).filter(Boolean);
+      if (!cuts.length) return '<div class="text-xs text-slate-400">Chưa nhập số liệu cắt.</div>';
+      const showAll = cutExpandedOrder === orderId;
+      const visible = showAll ? cuts : cuts.slice(0, MAX_CUT_PIECES);
+      const hidden = cuts.length - visible.length;
+      return `
+        <div class="flex flex-wrap gap-1.5">
+          ${visible.map((c, i) => `
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold whitespace-nowrap">
+              ${c}
+              <button onclick="removeCutPiece('${orderId}', ${i})" class="text-slate-400 hover:text-rose-500" title="Xóa miếng này">✕</button>
+            </span>`).join('')}
+        </div>
+        ${hidden > 0 ? `<button onclick="toggleCutExpanded('${orderId}')" class="text-xs font-semibold text-amber-600 hover:text-amber-700">${showAll ? '▲ Thu gọn' : `▶ Xem thêm ${hidden} miếng ▾`}</button>` : ''}
+      `;
+    }
+
+    function toggleCutExpanded(orderId) {
+      cutExpandedOrder = cutExpandedOrder === orderId ? null : orderId;
+      openOrderModal(orderId);
+    }
+    function toggleCutAdd(orderId) {
+      cutAddingOrder = cutAddingOrder === orderId ? null : orderId;
+      openOrderModal(orderId);
+    }
+    function addCutPiece(orderId) {
+      const val = document.getElementById('new-cut-input').value.trim();
+      if (!val) return;
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      ensureWorkflow(order);
+      const cuts = (order.workflow.soLieuCat || '').split(',').map(s => s.trim()).filter(Boolean);
+      cuts.push(val);
+      order.workflow.soLieuCat = cuts.join(', ');
+      cutAddingOrder = null;
+      cutExpandedOrder = orderId;
+      saveWorkflowOrder(order);
+      openOrderModal(orderId);
+    }
+    function removeCutPiece(orderId, idx) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      ensureWorkflow(order);
+      const cuts = (order.workflow.soLieuCat || '').split(',').map(s => s.trim()).filter(Boolean);
+      cuts.splice(idx, 1);
+      order.workflow.soLieuCat = cuts.join(', ');
+      saveWorkflowOrder(order);
+      openOrderModal(orderId);
     }
 
     // Bật/tắt 1 cờ quy trình (checkbox trong modal)
