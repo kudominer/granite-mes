@@ -8,6 +8,7 @@ Xem [README.md](README.md) (nếu có) để biết tổng quan. Dự án deploy
 - `git` — remote `https://github.com/kudominer/granite-mes.git`, nhánh `master`.
 - `netlify-cli` đã cài GLOBAL (gõ `netlify` ở terminal nào cũng được). Token deploy đã cấp quyền (biến `NETLIFY_AUTH_TOKEN` hoặc session `netlify login` active).
 - Dự án là web tĩnh (HTML/CSS/JS thuần), deploy từ thư mục `.`, auto-build từ GitHub.
+- `node scripts/db-exec.js "SQL"` — chạy lệnh DDL/DML lên Supabase Postgres (cần `DATABASE_URL` trong `.env`, xem mục "Tạo bảng/cột tự động").
 
 ## QUY TRÌNH LÀM VIỆC — QUAN TRỌNG NHẤT
 1. **ĐỒNG BỘ TRƯỚC KHI SỬA:** luôn `git fetch` rồi `git pull origin master` để lấy code mới nhất. TUYỆT ĐỐI không sửa khi chưa pull. (Áp dụng mọi repo, không riêng Bot_Albion_TNC.)
@@ -31,6 +32,17 @@ Xem [README.md](README.md) (nếu có) để biết tổng quan. Dự án deploy
 - Data load/save qua `js/supabase.js` (`initSupabase`, `loadAllFromSupabase`, `saveOrderToSupabase`, `saveInventoryToSupabase`). Không gọi Supabase trần (phải qua wrapper này).
 - Mọi thao tác đổi data (nhận đơn, nhận đá, ảnh, tấm, chuyển sở hữu) PHẢI gọi hàm save tương ứng — không chỉ đổi biến in-memory.
 
+## Tạo bảng/cột tự động
+- Khi cần thêm bảng hoặc cột mới trên Supabase, **KHÔNG bắt user dán SQL thủ công vào SQL Editor**.
+- Dùng script có sẵn:
+  ```bash
+  node scripts/db-exec.js "SQL_DDL_ở_đây"
+  ```
+  VD: `node scripts/db-exec.js "ALTER TABLE orders ADD COLUMN IF NOT EXISTS my_col text;"`
+- Script ở `scripts/db-exec.js`, dùng `DATABASE_URL` từ `.env` (đã có mật khẩu DB) qua package `pg`.
+- Trước khi chạy: đảm bảo đã `npm install` (có `pg`). Không dùng anon/service_role key qua REST để tạo cột (REST không hỗ trợ DDL).
+- Sau khi tạo schema, ghi mô tả bảng/cột vào `supabase/schema.sql` (và docs của tính năng nếu có) theo đúng cấu trúc.
+
 ## BẢO MẬT (TUYỆT ĐỐI)
 - KHÔNG commit file `.env`, `js/config.js` (chứa Supabase key & Netlify token — đã nằm trong `.gitignore`).
 - KHÔNG hardcode secret vào code. Nếu thấy key lộ trong diff → báo user ngay.
@@ -50,6 +62,7 @@ Xem [README.md](README.md) (nếu có) để biết tổng quan. Dự án deploy
 - `js/supabase.js` — kết nối & load/save Supabase.
 - `js/config.js` — Supabase credentials (gitignored).
 - `supabase/schema.sql` — schema DB (chạy 1 lần trên Supabase SQL Editor).
+- `scripts/db-exec.js` — chạy DDL/DML trực tiếp lên DB (dùng `DATABASE_URL` trong `.env`).
 - `.env` / `.env.example`, `netlify.toml` — cấu hình.
 
 ## Ngôn ngữ & giao tiếp

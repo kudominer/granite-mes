@@ -1,0 +1,13 @@
+{
+  "name": "granite-mes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StoneFlow Pro - web quản lý kho & xưởng đá hoa cương",
+  "scripts": {
+    "db-exec": "node scripts/db-exec.js"
+  },
+  "dependencies": {
+    "pg": "^8.11.0",
+    "dotenv": "^16.4.0"
+  }
+}
