@@ -33,6 +33,7 @@ async function loadAllFromSupabase() {
     const ordersMerged = (ordersData || []).map(o => {
       return {
         ...o,
+        payFlag: o.pay_flag || o.payFlag || '',
         workflow: o.workflow || null,
         steps: o.steps || [],
         extraTasks: o.extra_tasks || [],
@@ -45,6 +46,8 @@ async function loadAllFromSupabase() {
 
     const invMerged = (invData || []).map(i => ({
       ...i,
+      ownerName: i.owner_name || i.ownerName || '',
+      ownerType: i.owner_type || i.ownerType || 'customer',
       ma: i.ma || '', qty: i.qty || 1, photo: i.photo || '', note: i.note || ''
     }));
 
