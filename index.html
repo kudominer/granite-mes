@@ -385,25 +385,51 @@
     </div>
   </div>
 
-  <!-- EDIT PHOTO MODAL (Thêm/sửa ảnh đá trong kho) -->
-  <div id="edit-photo-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+  <!-- EDIT ITEM MODAL (Sửa tấm đá: ảnh + mẫu mã + số tấm + kích thước + ghi chú) -->
+  <div id="edit-item-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
-        <h3 class="font-bold text-base">Thêm / Sửa Ảnh Đá</h3>
-        <button onclick="closeEditPhotoModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <h3 class="font-bold text-base"><i class="fa-solid fa-pen mr-1"></i> Sửa Tấm Đá</h3>
+        <button onclick="closeEditItemModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <div class="p-6 space-y-4">
-        <p id="edit-photo-name" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
-        <input type="file" id="edit-photo-input" accept="image/*" capture="environment" class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-amber-50 dark:file:bg-amber-950 file:text-amber-600 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-100 transition">
-        <div id="edit-photo-preview" class="hidden">
-          <img id="edit-photo-img" class="w-full max-h-48 object-contain rounded-xl border border-slate-200 dark:border-slate-700">
+      <div class="p-6 overflow-y-auto space-y-4">
+        <p id="edit-item-title" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Ảnh tấm đá</label>
+          <input type="file" id="edit-item-photo" accept="image/*" capture="environment" class="w-full text-sm text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-amber-50 dark:file:bg-amber-950 file:text-amber-600 dark:file:text-amber-400 file:font-semibold hover:file:bg-amber-100 transition">
+          <div id="edit-item-preview" class="hidden mt-2">
+            <img id="edit-item-preview-img" class="w-full max-h-48 object-contain rounded-xl border border-slate-200 dark:border-slate-700">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Mẫu Mã Đá</label>
+            <input type="text" id="edit-item-ma" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Số Tấm</label>
+            <input type="number" id="edit-item-qty" min="1" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Kích thước (cm)</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="edit-item-dai" min="0" placeholder="Dài" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+            <span class="text-slate-400 font-bold">×</span>
+            <input type="number" id="edit-item-rong" min="0" placeholder="Rộng" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+            <span class="text-slate-400 text-sm font-semibold shrink-0">cm</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Ghi chú</label>
+          <textarea id="edit-item-note" rows="2" placeholder="Vị trí kệ, tình trạng đá..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"></textarea>
         </div>
       </div>
       <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3">
-        <button onclick="closeEditPhotoModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Hủy</button>
-        <button onclick="saveEditPhoto()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Lưu Ảnh</button>
+        <button onclick="closeEditItemModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Hủy</button>
+        <button onclick="saveEditItem()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Lưu Thay Đổi</button>
       </div>
     </div>
   </div>

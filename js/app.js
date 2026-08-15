@@ -203,7 +203,7 @@
           <td class="p-4 text-xs text-slate-500" data-label="Ghi Chú">${item.note}</td>
           <td class="p-4 text-right" data-label="Thao Tác">
             <div class="flex flex-col items-end space-y-1.5">
-              <button onclick="openEditPhotoModal('${item.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">
+              <button onclick="openEditItemModal('${item.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">
                 <i class="fa-solid fa-camera mr-1"></i> ${item.photo ? 'Sửa ảnh' : 'Thêm ảnh'}
               </button>
               <button onclick="transferOwnership('${item.id}')" class="px-3 py-1.5 bg-amber-50 dark:bg-amber-950 text-amber-600 hover:bg-amber-100 rounded-lg text-xs font-semibold transition">
@@ -470,7 +470,6 @@
 
     // ===== Danh sách Đá Nhập trong modal đơn: thu gọn + sửa kích thước inline =====
     let invExpandedOrder = null;   // orderId đang sổ hết danh sách đá nhập
-    let invSizeEditId = null;      // tấm đang mở ô sửa kích thước
     const MAX_INV_ITEMS = 3;       // số tấm hiện trước khi thu gọn
 
     function renderOrderInvItems(orderId) {
@@ -497,20 +496,8 @@
                   </div>
                 </div>
               </div>
-              <!-- Ô sửa kích thước inline (bấm nút "Kích thước" để mở) -->
-              <div id="inv-size-edit-${iv.id}" class="hidden mt-2 flex items-center gap-2">
-                <input id="inv-size-dai-${iv.id}" type="number" min="0" placeholder="Dài" class="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-800 border rounded-lg text-sm">
-                <span class="text-slate-400 font-bold">×</span>
-                <input id="inv-size-rong-${iv.id}" type="number" min="0" placeholder="Rộng" class="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-800 border rounded-lg text-sm">
-                <span class="text-xs text-slate-400 shrink-0">cm</span>
-                <button onclick="saveInvSize('${iv.id}')" class="px-2 py-1 bg-teal-600 text-white rounded-lg text-xs font-semibold">Lưu</button>
-                <button onclick="toggleInvSizeEdit('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">Hủy</button>
-              </div>
             </div>
-            <div class="flex flex-col items-end gap-1 shrink-0">
-              <button onclick="toggleInvSizeEdit('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-ruler mr-1"></i>Kích thước</button>
-              <button onclick="openEditPhotoModal('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-camera mr-1"></i>${iv.photo ? 'Sửa' : 'Ảnh'}</button>
-            </div>
+            <button onclick="openEditItemModal('${iv.id}', true)" class="px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-pen mr-1"></i>Chỉnh sửa</button>
           </div>
         `).join('')}
         ${hidden > 0 ? `<button onclick="toggleInvExpanded('${orderId}')" class="w-full text-center text-xs font-semibold text-teal-600 hover:text-teal-700 py-1">${showAll ? '▲ Thu gọn' : `▶ Xem thêm ${hidden} tấm ▾`}</button>` : ''}
@@ -522,49 +509,67 @@
       if (activeOrderId) openOrderModal(activeOrderId);
     }
 
-    // Mở/đóng ô sửa kích thước của 1 tấm (chỉ mở 1 tấm tại 1 thời điểm)
-    function toggleInvSizeEdit(id) {
-      if (invSizeEditId && invSizeEditId !== id) {
-        const prev = document.getElementById('inv-size-edit-' + invSizeEditId);
-        if (prev) prev.classList.add('hidden');
-      }
-      const el = document.getElementById('inv-size-edit-' + id);
-      if (!el) return;
-      const opening = el.classList.contains('hidden');
-      if (opening) {
-        const item = inventory.find(i => i.id === id);
-        const m = (item.size || '').match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
-        document.getElementById('inv-size-dai-' + id).value = m ? m[1] : '';
-        document.getElementById('inv-size-rong-' + id).value = m ? m[2] : '';
-        el.classList.remove('hidden');
-        invSizeEditId = id;
-      } else {
-        el.classList.add('hidden');
-        invSizeEditId = null;
-      }
-    }
+    // ===== SỬA TẤM ĐÁ (modal đầy đủ: ảnh + mẫu mã + số tấm + kích thước + ghi chú) =====
+    let editItemId = null;
 
-    // Tăng/giảm số tấm (nút + / − trên tấm đá đã nhập)
-    function incInvQty(id, delta) {
+    function openEditItemModal(id, fromOrder) {
       const item = inventory.find(i => i.id === id);
       if (!item) return;
-      item.qty = Math.max(1, (item.qty || 1) + delta);
-      saveInventoryToSupabase(item);
-      if (activeOrderId) openOrderModal(activeOrderId);
-      else renderInventory();
+      editItemId = id;
+      document.getElementById('edit-item-title').innerText = `${item.name} (${item.id})`;
+      document.getElementById('edit-item-photo').value = '';
+      document.getElementById('edit-item-preview').classList.add('hidden');
+      document.getElementById('edit-item-ma').value = item.ma || '';
+      document.getElementById('edit-item-qty').value = item.qty || 1;
+      const m = (item.size || '').match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+      document.getElementById('edit-item-dai').value = m ? m[1] : '';
+      document.getElementById('edit-item-rong').value = m ? m[2] : '';
+      document.getElementById('edit-item-note').value = item.note || '';
+      document.getElementById('edit-item-modal').classList.remove('hidden');
+      document.getElementById('edit-item-modal').classList.add('flex');
     }
-
-    // Lưu kích thước sửa tay cho tấm đã nhập
-    function saveInvSize(id) {
-      const item = inventory.find(i => i.id === id);
+    function closeEditItemModal() {
+      document.getElementById('edit-item-modal').classList.remove('flex');
+      document.getElementById('edit-item-modal').classList.add('hidden');
+      editItemId = null;
+    }
+    document.getElementById('edit-item-photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        document.getElementById('edit-item-preview-img').src = ev.target.result;
+        document.getElementById('edit-item-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+    function saveEditItem() {
+      if (!editItemId) return;
+      const item = inventory.find(i => i.id === editItemId);
       if (!item) return;
-      const dai = document.getElementById('inv-size-dai-' + id).value.trim();
-      const rong = document.getElementById('inv-size-rong-' + id).value.trim();
+      const dai = document.getElementById('edit-item-dai').value.trim();
+      const rong = document.getElementById('edit-item-rong').value.trim();
       item.size = (dai && rong) ? `${dai} x ${rong} cm` : (dai ? `${dai} cm` : (rong ? `${rong} cm` : 'Chưa đo'));
-      invSizeEditId = null;
-      saveInventoryToSupabase(item);
-      if (activeOrderId) openOrderModal(activeOrderId);
-      else renderInventory();
+      item.qty = Math.max(1, parseInt(document.getElementById('edit-item-qty').value) || 1);
+      const ma = document.getElementById('edit-item-ma').value.trim();
+      if (ma) item.ma = ma;
+      item.note = document.getElementById('edit-item-note').value.trim();
+      const file = document.getElementById('edit-item-photo').files[0];
+      const doSave = (photoBase64) => {
+        if (photoBase64) item.photo = photoBase64;
+        saveInventoryToSupabase(item);
+        closeEditItemModal();
+        if (activeOrderId) openOrderModal(activeOrderId);
+        else renderInventory();
+        alert('Đã lưu thay đổi cho ' + item.name + '!');
+      };
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) { doSave(ev.target.result); };
+        reader.readAsDataURL(file);
+      } else {
+        doSave(null);
+      }
     }
 
     // ===== Danh sách miếng cắt quy cách: chips + thu gọn + thêm/xóa =====
@@ -935,49 +940,6 @@
       };
       reader.readAsDataURL(file);
       input.value = '';
-    }
-
-    // Edit Photo (thêm/sửa ảnh đá trong kho)
-    let editPhotoId = null;
-    function openEditPhotoModal(id) {
-      const item = inventory.find(i => i.id === id);
-      if (!item) return;
-      editPhotoId = id;
-      document.getElementById('edit-photo-name').innerText = `${item.name} (${item.id})`;
-      document.getElementById('edit-photo-input').value = '';
-      document.getElementById('edit-photo-preview').classList.add('hidden');
-      document.getElementById('edit-photo-modal').classList.remove('hidden');
-      document.getElementById('edit-photo-modal').classList.add('flex');
-    }
-    function closeEditPhotoModal() {
-      document.getElementById('edit-photo-modal').classList.remove('flex');
-      document.getElementById('edit-photo-modal').classList.add('hidden');
-      editPhotoId = null;
-    }
-    document.getElementById('edit-photo-input').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        document.getElementById('edit-photo-img').src = ev.target.result;
-        document.getElementById('edit-photo-preview').classList.remove('hidden');
-      };
-      reader.readAsDataURL(file);
-    });
-    function saveEditPhoto() {
-      if (!editPhotoId) return;
-      const item = inventory.find(i => i.id === editPhotoId);
-      const file = document.getElementById('edit-photo-input').files[0];
-      if (!file) { alert('Vui lòng chọn ảnh!'); return; }
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        item.photo = ev.target.result;
-        closeEditPhotoModal();
-        renderInventory();
-        saveInventoryToSupabase(item);
-        alert('Đã lưu ảnh cho ' + item.name + '!');
-      };
-      reader.readAsDataURL(file);
     }
 
     // ===== Quality (nonconformance) + Logistics (activity log) từ ECC skills =====
