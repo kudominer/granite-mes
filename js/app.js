@@ -432,6 +432,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="text-right text-emerald-600 font-bold tabular-nums">${formatMoney(s.donGia)}</div>
+                  <button onclick="openEditSlabModal('${order.id}', ${i})" class="px-2 py-1 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-pen mr-1"></i>Sửa</button>
                   <button onclick="toggleSlabDefect('${order.id}', ${i})" class="px-2 py-1 rounded-lg text-xs font-bold ${s.defect ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${s.defect ? 'Hủy lỗi' : 'Đánh dấu lỗi'}</button>
                 </div>
               </div>
@@ -572,6 +573,88 @@
       }
     }
 
+    // ===== SỬA TẤM ĐÁ GIA CÔNG (order.slabs) — modal đầy đủ =====
+    let editSlab = null;   // {orderId, idx}
+    function openEditSlabModal(orderId, idx) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order || !order.slabs || !order.slabs[idx]) return;
+      editSlab = { orderId, idx };
+      const s = order.slabs[idx];
+      document.getElementById('edit-slab-title').innerText = `Tấm #${idx + 1} - ${order.id}`;
+      document.getElementById('edit-slab-dai').value = s.dai || '';
+      document.getElementById('edit-slab-rong').value = s.rong || '';
+      document.getElementById('edit-slab-kieu').value = s.kieu || '';
+      document.getElementById('edit-slab-dongia').value = s.donGia || '';
+      document.getElementById('edit-slab-note').value = s.note || '';
+      document.getElementById('edit-slab-modal').classList.remove('hidden');
+      document.getElementById('edit-slab-modal').classList.add('flex');
+    }
+    function closeEditSlabModal() {
+      document.getElementById('edit-slab-modal').classList.remove('flex');
+      document.getElementById('edit-slab-modal').classList.add('hidden');
+      editSlab = null;
+    }
+    function saveEditSlab() {
+      if (!editSlab) return;
+      const order = orders.find(o => o.id === editSlab.orderId);
+      const idx = editSlab.idx;
+      if (!order || !order.slabs || !order.slabs[idx]) return;
+      const s = order.slabs[idx];
+      s.dai = parseFloat(document.getElementById('edit-slab-dai').value) || 0;
+      s.rong = parseFloat(document.getElementById('edit-slab-rong').value) || 0;
+      s.kieu = document.getElementById('edit-slab-kieu').value.trim();
+      s.donGia = parseFloat(document.getElementById('edit-slab-dongia').value) || 0;
+      s.note = document.getElementById('edit-slab-note').value.trim();
+      saveOrderToSupabase(order);
+      closeEditSlabModal();
+      openOrderModal(order.id);
+      alert('Đã lưu thay đổi tấm đá!');
+    }
+    function deleteSlab() {
+      if (!editSlab) return;
+      const order = orders.find(o => o.id === editSlab.orderId);
+      const idx = editSlab.idx;
+      if (!order || !order.slabs) return;
+      if (!confirm('Xóa tấm #' + (idx + 1) + ' khỏi danh sách?')) return;
+      order.slabs.splice(idx, 1);
+      saveOrderToSupabase(order);
+      closeEditSlabModal();
+      openOrderModal(order.id);
+    }
+
+    // ===== SỬA MIẾNG CẮT QUY CÁCH (soLieuCat) =====
+    let editCut = null;   // {orderId, idx}
+    function openEditCutModal(orderId, idx) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      const cuts = (order.workflow.soLieuCat || '').split(',').map(s => s.trim()).filter(Boolean);
+      if (!cuts[idx]) return;
+      editCut = { orderId, idx };
+      document.getElementById('edit-cut-title').innerText = `Miếng cắt #${idx + 1} - ${order.id}`;
+      document.getElementById('edit-cut-value').value = cuts[idx];
+      document.getElementById('edit-cut-modal').classList.remove('hidden');
+      document.getElementById('edit-cut-modal').classList.add('flex');
+    }
+    function closeEditCutModal() {
+      document.getElementById('edit-cut-modal').classList.remove('flex');
+      document.getElementById('edit-cut-modal').classList.add('hidden');
+      editCut = null;
+    }
+    function saveEditCut() {
+      if (!editCut) return;
+      const order = orders.find(o => o.id === editCut.orderId);
+      const idx = editCut.idx;
+      if (!order) return;
+      const val = document.getElementById('edit-cut-value').value.trim();
+      if (!val) return;
+      const cuts = (order.workflow.soLieuCat || '').split(',').map(s => s.trim()).filter(Boolean);
+      cuts[idx] = val;
+      order.workflow.soLieuCat = cuts.join(', ');
+      saveWorkflowOrder(order);
+      closeEditCutModal();
+      openOrderModal(order.id);
+    }
+
     // ===== Danh sách miếng cắt quy cách: chips + thu gọn + thêm/xóa =====
     let cutExpandedOrder = null;   // orderId đang sổ hết miếng cắt
     let cutAddingOrder = null;     // orderId đang hiện ô thêm miếng cắt
@@ -590,6 +673,7 @@
           ${visible.map((c, i) => `
             <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold whitespace-nowrap">
               ${c}
+              <button onclick="openEditCutModal('${orderId}', ${i})" class="text-slate-500 hover:text-amber-600" title="Sửa miếng này">✏️</button>
               <button onclick="removeCutPiece('${orderId}', ${i})" class="text-slate-400 hover:text-rose-500" title="Xóa miếng này">✕</button>
             </span>`).join('')}
         </div>

@@ -434,6 +434,73 @@
     </div>
   </div>
 
+  <!-- EDIT SLAB MODAL (Sửa tấm đá gia công trong đơn) -->
+  <div id="edit-slab-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <h3 class="font-bold text-base"><i class="fa-solid fa-pen mr-1"></i> Sửa Tấm Đá Gia Công</h3>
+        <button onclick="closeEditSlabModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="p-6 overflow-y-auto space-y-4">
+        <p id="edit-slab-title" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Dài (cm)</label>
+            <input type="number" id="edit-slab-dai" min="0" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-1">Rộng (cm)</label>
+            <input type="number" id="edit-slab-rong" min="0" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Kiểu gia công</label>
+          <input type="text" id="edit-slab-kieu" placeholder="VD: Ghép 45°" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Đơn giá (VNĐ)</label>
+          <input type="number" id="edit-slab-dongia" min="0" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Ghi chú</label>
+          <textarea id="edit-slab-note" rows="2" placeholder="Vị trí, cạnh..." class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"></textarea>
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+        <button onclick="deleteSlab()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-50 dark:bg-rose-950 text-rose-600 hover:bg-rose-100 border border-rose-200 dark:border-rose-800"><i class="fa-solid fa-trash mr-1"></i>Xóa tấm</button>
+        <div class="flex space-x-2">
+          <button onclick="closeEditSlabModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Hủy</button>
+          <button onclick="saveEditSlab()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT CUT MODAL (Sửa miếng cắt quy cách) -->
+  <div id="edit-cut-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+        <h3 class="font-bold text-base"><i class="fa-solid fa-pen mr-1"></i> Sửa Miếng Cắt</h3>
+        <button onclick="closeEditCutModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p id="edit-cut-title" class="text-sm font-semibold text-slate-700 dark:text-slate-200"></p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Kích thước miếng cắt (Dài x Rộng)</label>
+          <input type="text" id="edit-cut-value" placeholder="VD: 100x60" class="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3">
+        <button onclick="closeEditCutModal()" class="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Hủy</button>
+        <button onclick="saveEditCut()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-md transition">Lưu</button>
+      </div>
+    </div>
+  </div>
+
   <!-- SLAB TABLE MODAL (Nhập liệu tấm kiểu bảng - Phương án A) -->
   <div id="slab-table-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
