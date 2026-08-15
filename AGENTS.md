@@ -42,6 +42,14 @@ Xem [README.md](README.md) (nếu có) để biết tổng quan. Dự án deploy
 - **Dark mode:** đã fix bằng CSS override (`.dark` class trong `css/style.css`), KHÔNG dùng Tailwind `dark:` variant (Tailwind Play CDN v4 không hỗ trợ config darkMode class).
 - **Quy trình nhận hàng:** luôn kèm chụp ảnh + thông tin (mẫu mã/kích thước/số tấm). Modal "Nhận Đá Khách (Chụp)" ở dashboard.
 
+## Tạo bảng/cột tự động (DDL qua script)
+Khi cần thêm bảng hoặc cột mới trên Supabase granite-mes, Agent KHÔNG cần mở SQL Editor thủ công. Dùng script:
+`node scripts/db-exec.js "SQL_DDL_ở_đây"` (ví dụ: `ALTER TABLE orders ADD COLUMN tong_tien bigint;`).
+Script dùng `DATABASE_URL` từ `.env` (thêm vào từ Supabase Dashboard project granite-mes → Settings → Database → Connection string, chứa mật khẩu DB) qua package `pg`.
+- Yêu cầu: `npm install pg` (nếu thiếu).
+- KHÔNG dùng anon/service_role key qua REST để tạo cột (REST không hỗ trợ DDL) — luôn qua script này hoặc SQL Editor.
+- Sau khi tạo schema, cập nhật `supabase/schema.sql` cho khớp.
+
 ## Cấu trúc dự án
 - `index.html` — markup + script tags (supabase-js CDN → config.js → supabase.js → data.js → app.js).
 - `css/style.css` — style + dark mode override + mobile card layout.
