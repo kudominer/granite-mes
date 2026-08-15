@@ -59,7 +59,8 @@
     function ensureWorkflow(order) {
       if (!order.workflow) {
         const w = defaultWorkflow();
-        const s = order.steps || [];
+        // Bỏ phần tử đánh dấu __wf (nếu có) để không đếm nhầm là bước
+        const s = (order.steps || []).filter(x => !(x && x.key === '__wf'));
         const has = k => !!s.find(x => x.key === k && x.done);
         if (has('cat')) w.cat = 'cat';
         else if (has('khong_cat')) w.cat = 'khong_cat';
