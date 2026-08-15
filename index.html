@@ -14,18 +14,17 @@
   <!-- Top Navigation Bar -->
   <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 lg:px-8 py-3 flex items-center justify-between shadow-sm">
     <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-amber-500/20">
+      <div class="w-11 h-11 rounded-xl bg-amber-600 flex items-center justify-center text-white font-bold text-lg">
         <i class="fa-solid fa-gem"></i>
       </div>
       <div>
-        <h1 class="font-bold text-base lg:text-lg tracking-tight">StoneFlow Pro <span class="text-xs px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 font-semibold ml-1">Xưởng Chú Cẩn & Kudo</span></h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Quản lý kho đá gia công & tiến độ 2 nhánh (45° & Bo)</p>
+        <h1 class="font-bold text-base lg:text-lg tracking-tight">StoneFlow Pro</h1>
+        <p class="text-sm text-slate-600 dark:text-slate-300 font-medium">Xưởng Chú Cẩn & Kudo · Kho đá & tiến độ 2 nhánh</p>
       </div>
     </div>
 
     <div class="flex items-center space-x-3">
-      <div class="hidden md:flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-user-gear text-amber-500"></i>
+      <div class="hidden md:flex items-center bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300">
         <span id="current-user-role">Đang dùng: Kudo (Quản trị / Thợ)</span>
       </div>
       <button onclick="toggleUserRole()" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-xs font-semibold border border-amber-200 dark:border-amber-800 transition hover:bg-amber-100">
@@ -46,31 +45,22 @@
       <nav class="flex flex-wrap lg:flex-col space-x-2 lg:space-x-0 lg:space-y-1.5 w-full">
         <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 w-full text-left">
           <i class="fa-solid fa-chart-pie w-5 text-center"></i>
-          <span class="whitespace-nowrap">Tổng Quan Xưởng</span>
+          <span class="whitespace-nowrap">Tổng Quan</span>
         </button>
         <button onclick="switchTab('inventory')" id="nav-inventory" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-cubes w-5 text-center"></i>
-          <span class="whitespace-nowrap">Kho Đá <span class="tab-sub">(NL & Thành Phẩm)</span></span>
+          <span class="whitespace-nowrap">Kho Đá</span>
         </button>
         <button onclick="switchTab('orders')" id="nav-orders" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-          <span class="whitespace-nowrap">Đơn Hàng & Tiến Độ (2 Nhánh)</span>
+          <span class="whitespace-nowrap">Đơn Hàng</span>
         </button>
         <button onclick="switchTab('ops')" id="nav-ops" class="nav-btn flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 w-full text-left">
           <i class="fa-solid fa-chart-line w-5 text-center"></i>
-          <span class="whitespace-nowrap">Vận Hành Xưởng <span class="tab-sub">(Trí tuệ)</span></span>
+          <span class="whitespace-nowrap">Vận Hành</span>
         </button>
       </nav>
 
-      <div class="hidden lg:block pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-800 dark:to-slate-900 text-white p-3.5 rounded-xl text-xs space-y-2 shadow-inner">
-          <div class="flex items-center justify-between font-semibold text-amber-400">
-            <span>Xưởng Chú Cẩn</span>
-            <i class="fa-solid fa-check-circle"></i>
-          </div>
-          <p class="text-slate-300 leading-relaxed">Đã tối ưu cho điện thoại di động tại xưởng và máy tính văn phòng.</p>
-        </div>
-      </div>
     </aside>
 
     <!-- Content Area -->
@@ -84,11 +74,11 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Nắm bắt nhanh tình trạng đơn hàng gia công và kho đá khách gửi / đá tồn.</p>
           </div>
           <div class="flex items-center space-x-2 flex-wrap">
-            <button onclick="openReceiveStoneModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-emerald-600/20 transition flex items-center space-x-2">
+            <button onclick="openReceiveStoneModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
               <i class="fa-solid fa-camera"></i>
               <span>Nhận Đá Khách (Chụp)</span>
             </button>
-            <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-lg shadow-amber-600/20 transition flex items-center space-x-2">
+            <button onclick="openNewOrderModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center space-x-2">
               <i class="fa-solid fa-plus"></i>
               <span>Nhận Đơn Hàng Mới</span>
             </button>
@@ -96,56 +86,36 @@
         </div>
 
         <!-- KPI Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đơn Đang Gia Công</span>
-              <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-spinner"></i>
-              </div>
-            </div>
-            <div class="mt-3 flex items-baseline justify-between">
+            <div class="text-base font-bold text-slate-600 dark:text-slate-300">Đơn Đang Gia Công</div>
+            <div class="mt-2 flex items-baseline justify-between">
               <span class="text-3xl font-extrabold tabular-nums" id="kpi-active-orders">4</span>
-              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">Đang chạy xưởng</span>
+              <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Đang chạy xưởng</span>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đá Khách Gửi (Nguyên liệu)</span>
-              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-cubes"></i>
-              </div>
-            </div>
-            <div class="mt-3 flex items-baseline justify-between">
+            <div class="text-base font-bold text-slate-600 dark:text-slate-300">Đá Khách Gửi (Nguyên liệu)</div>
+            <div class="mt-2 flex items-baseline justify-between">
               <span class="text-2xl lg:text-3xl font-extrabold tabular-nums" id="kpi-cust-stone">18 tấm</span>
-              <span class="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full">95% của khách</span>
+              <span class="text-sm font-semibold text-blue-700 dark:text-blue-400">95% của khách</span>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đá Dư / Đá Lỗi (Thuộc Kho)</span>
-              <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-recycle"></i>
-              </div>
-            </div>
-            <div class="mt-3 flex items-baseline justify-between">
+            <div class="text-base font-bold text-slate-600 dark:text-slate-300">Đá Dư / Đá Lỗi (Thuộc Kho)</div>
+            <div class="mt-2 flex items-baseline justify-between">
               <span class="text-3xl font-extrabold tabular-nums" id="kpi-shop-stone">5 tấm</span>
-              <span class="text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded-full">Tái sử dụng</span>
+              <span class="text-sm font-semibold text-purple-700 dark:text-purple-400">Tái sử dụng</span>
             </div>
           </div>
 
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Thành Phẩm Chờ Giao</span>
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                <i class="fa-solid fa-truck-ramp-box"></i>
-              </div>
-            </div>
-            <div class="mt-3 flex items-baseline justify-between">
-              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums text-emerald-600 dark:text-emerald-400" id="kpi-finished">2 đơn</span>
-              <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">Sẵn sàng xuất</span>
+            <div class="text-base font-bold text-slate-600 dark:text-slate-300">Thành Phẩm Chờ Giao</div>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl lg:text-3xl font-extrabold tabular-nums text-emerald-700 dark:text-emerald-400" id="kpi-finished">2 đơn</span>
+              <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-400">Sẵn sàng xuất</span>
             </div>
           </div>
         </div>
@@ -155,7 +125,7 @@
           <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between mb-4">
               <h3 class="font-bold text-base">Đơn Hàng Gần Đây & Nhánh Gia Công</h3>
-              <button onclick="switchTab('orders')" class="text-xs font-semibold text-amber-600 dark:text-amber-400 hover:underline">Xem tất cả</button>
+              <button onclick="switchTab('orders')" class="text-sm font-semibold text-amber-700 dark:text-amber-400 hover:underline">Xem tất cả</button>
             </div>
             <div class="overflow-x-auto sm:overflow-visible">
               <table class="w-full text-left text-sm">
@@ -177,14 +147,14 @@
           <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
             <div>
               <h3 class="font-bold text-base mb-3">Quy Trình 2 Nhánh Xưởng</h3>
-              <div class="space-y-3 text-xs">
+              <div class="space-y-3 text-sm">
                 <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60">
-                  <span class="font-bold text-emerald-700 dark:text-emerald-400 block mb-1">🌿 Nhánh A: Ghép 45°</span>
-                  <p class="text-slate-600 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép 45° ➔ Líp 45° (Tách Líp mặt + Líp chỉ) ➔ <strong>Ghép (Kết thúc, không qua đánh bóng)</strong>.</p>
+                  <span class="font-bold text-emerald-700 dark:text-emerald-400 block mb-1">Nhánh A: Ghép 45°</span>
+                  <p class="text-slate-700 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép 45° ➔ Líp 45° (Tách Líp mặt + Líp chỉ) ➔ <strong>Ghép (Kết thúc, không qua đánh bóng)</strong>.</p>
                 </div>
                 <div class="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60">
-                  <span class="font-bold text-purple-700 dark:text-purple-400 block mb-1">💜 Nhánh B: Ghép Bo</span>
-                  <p class="text-slate-600 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép bo ➔ Ghép ➔ Bo kiểu ➔ <strong>Đánh bóng (Bắt buộc)</strong> ➔ Thành phẩm.</p>
+                  <span class="font-bold text-purple-700 dark:text-purple-400 block mb-1">Nhánh B: Ghép Bo</span>
+                  <p class="text-slate-700 dark:text-slate-300">Nhận đơn ➔ Cắt/Không cắt ➔ Ghép bo ➔ Ghép ➔ Bo kiểu ➔ <strong>Đánh bóng (Bắt buộc)</strong> ➔ Thành phẩm.</p>
                 </div>
               </div>
             </div>
@@ -210,9 +180,9 @@
 
         <!-- Filter tabs for inventory -->
         <div class="flex items-center space-x-2 overflow-x-auto pb-1 sm:overflow-visible">
-          <button onclick="setInventoryTab('customer')" id="inv-tab-cust" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-white transition">Đá Khách Gửi (Nguyên liệu)</button>
-          <button onclick="setInventoryTab('shop')" id="inv-tab-shop" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Đá Kho (Đá dư / Đá lỗi bù)</button>
-          <button onclick="setInventoryTab('finished')" id="inv-tab-fin" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Kho Thành Phẩm (Chờ giao)</button>
+          <button onclick="setInventoryTab('customer')" id="inv-tab-cust" class="px-5 py-3 rounded-xl text-base font-bold bg-amber-600 text-white transition">Đá Khách Gửi</button>
+          <button onclick="setInventoryTab('shop')" id="inv-tab-shop" class="px-5 py-3 rounded-xl text-base font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Đá Kho (Dư / Lỗi)</button>
+          <button onclick="setInventoryTab('finished')" id="inv-tab-fin" class="px-5 py-3 rounded-xl text-base font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">Kho Thành Phẩm</button>
         </div>
 
         <!-- Inventory Table -->
@@ -363,7 +333,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
         <h3 class="font-bold text-base" id="modal-order-title">Chi Tiết Đơn Hàng</h3>
-        <button onclick="closeOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <button onclick="closeOrderModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -384,7 +354,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
         <h3 class="font-bold text-base">Nhận Đá Khách Đem Tới (Chụp & Lưu)</h3>
-        <button onclick="closeReceiveStoneModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <button onclick="closeReceiveStoneModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -437,7 +407,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
         <h3 class="font-bold text-base">Thêm / Sửa Ảnh Đá</h3>
-        <button onclick="closeEditPhotoModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <button onclick="closeEditPhotoModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -460,7 +430,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
         <h3 class="font-bold text-base">Nhập Danh Sách Tấm Đá (Bảng)</h3>
-        <button onclick="closeSlabTable()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <button onclick="closeSlabTable()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -501,7 +471,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
         <h3 class="font-bold text-base">Nhận Đơn Hàng Mới (Xưởng Chú Cẩn)</h3>
-        <button onclick="closeNewOrderModal()" class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
+        <button onclick="closeNewOrderModal()" class="w-11 h-11 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 hover:bg-slate-300 transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>

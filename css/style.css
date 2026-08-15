@@ -9,24 +9,19 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
 /* ===== MOBILE OPTIMIZATION (<=640px): KHÔNG scroll ngang ===== */
 @media (max-width: 640px) {
-  /* Tab nav: wrap xuống dòng, không tràn */
+  /* Tab nav: wrap xuống dòng, không tràn, CHỮ TO dễ bấm */
   nav.flex.flex-wrap.lg\:flex-col {
-    gap: 0.4rem !important;
+    gap: 0.5rem !important;
   }
   nav.flex.flex-wrap.lg\:flex-col > button {
     flex: 1 1 auto !important;
-    font-size: 0.72rem !important;
-    padding-left: 0.6rem !important;
-    padding-right: 0.6rem !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 0.6rem !important;
   }
-  /* Header padding nhỏ lại */
-  header.px-4 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
-  /* Ẩn phần phụ trong tên tab */
-  .tab-sub { display: none !important; }
+  /* Header padding thoáng hơn */
+  header.px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
   /* Nút action full width */
   button.w-full, a.w-full { width: 100% !important; justify-content: center; }
-  /* Tag trạng thái co gọn */
-  span.inline-flex, .badge { font-size: 0.65rem !important; padding: 0.15rem 0.4rem !important; }
 
   /* ===== TABLE -> CARD (bỏ scroll ngang) ===== */
   table.w-full.text-left.text-sm,
@@ -43,8 +38,7 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
     border: 1px solid #e2e8f0;
     border-radius: 1rem;
     margin-bottom: 0.75rem;
-    padding: 0.5rem 0.25rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    padding: 0.75rem;
   }
   .dark table.w-full.text-left.text-sm tr {
     background: #0f172a;
@@ -55,23 +49,26 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    padding: 0.4rem 0.75rem !important;
+    padding: 0.625rem 0.75rem !important;
     border: none !important;
     text-align: right !important;
     white-space: normal !important;
   }
   table.w-full.text-left.text-sm td::before {
     content: attr(data-label);
-    font-size: 0.65rem;
+    font-size: 0.8rem;
     font-weight: 600;
-    text-transform: uppercase;
-    color: #94a3b8;
+    color: #64748b;
     text-align: left;
     flex-shrink: 0;
   }
-  .dark table.w-full.text-left.text-sm td::before { color: #64748b; }
+  .dark table.w-full.text-left.text-sm td::before { color: #94a3b8; }
   /* Ảnh đá trong card */
-  table.w-full.text-left.text-sm td img { max-height: 80px; border-radius: 0.5rem; }
+  table.w-full.text-left.text-sm td img { max-height: 96px; border-radius: 0.5rem; }
+
+  /* 2 nút CTA dashboard xếp dọc, full-width */
+  main > section > div:first-child .flex { flex-direction: column !important; }
+  main > section > div:first-child button { width: 100% !important; justify-content: center; }
 }
 
 .tab-sub { font-size: 0.7rem; opacity: 0.6; font-weight: 500; }
@@ -120,3 +117,107 @@ html.dark nav { border-color: #334155 !important; }
 /* Nút secondary (slate) */
 html.dark .bg-slate-100 { background-color: #1e293b !important; }
 html.dark .bg-slate-200 { background-color: #334155 !important; }
+
+/* ============================================================
+   UI DỄ NHÌN CHO NGƯỜI LỚN TUỔI (override layer)
+   - Chữ to, tương phản cao, bớt rối, nút/ô nhập lớn dễ bấm
+   - Áp dụng cố định cả light/dark, desktop/mobile
+   ============================================================ */
+
+/* ---- A. Cỡ chữ toàn cục (phủ cả HTML tĩnh lẫn template JS) ---- */
+.text-\[10px\], .text-\[11px\], .text-xs { font-size: 0.875rem !important; } /* floor 14px */
+.text-sm { font-size: 0.9375rem !important; }                                /* 15px */
+.text-base { font-size: 1.125rem !important; }                               /* 18px */
+.text-lg { font-size: 1.25rem !important; }                                  /* 20px */
+.text-xl { font-size: 1.375rem !important; }
+.text-2xl { font-size: 1.625rem !important; }
+.text-3xl { font-size: 2.25rem !important; }
+.uppercase { text-transform: none !important; letter-spacing: normal !important; }
+.tracking-wider { letter-spacing: normal !important; }
+
+/* ---- B. Tương phản light mode ---- */
+html:not(.dark) .text-slate-400 { color: #64748b !important; } /* slate-500 */
+html:not(.dark) .text-slate-500 { color: #475569 !important; } /* slate-600 */
+/* Màu accent đậm hơn một bậc, GIỮ ý nghĩa mã màu nhánh */
+html:not(.dark) .text-amber-600 { color: #b45309 !important; }   /* amber-700 */
+html:not(.dark) .text-emerald-600 { color: #047857 !important; } /* emerald-700 */
+html:not(.dark) .text-purple-600 { color: #7e22ce !important; }  /* purple-700 */
+html:not(.dark) .text-rose-600 { color: #be123c !important; }    /* rose-700 */
+html:not(.dark) .text-blue-600 { color: #1d4ed8 !important; }    /* blue-700 */
+
+/* ---- C. Pill trong bảng -> bỏ nền, còn chữ màu (giảm nhiễu) ---- */
+table span.rounded-full, table span.rounded {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* ---- D. Bảng: header & ô dễ đọc ---- */
+table thead th {
+  font-size: 0.9375rem !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  color: #334155 !important;
+}
+html.dark table thead th { color: #cbd5e1 !important; }
+table tbody td { font-size: 0.9375rem !important; }
+
+/* ---- E. Nút & ô nhập ---- */
+button[class*="bg-amber-600"], button[class*="bg-emerald-600"], button[class*="bg-blue-600"] {
+  padding: 0.75rem 1.25rem !important;
+  font-size: 1rem !important;
+  box-shadow: none !important;
+  border-radius: 0.75rem !important;
+}
+button[class*="bg-slate-100"], button[class*="border-slate-200"] {
+  padding: 0.75rem 1.25rem !important;
+  font-size: 1rem !important;
+}
+button[class*="rounded-lg"] { padding: 0.625rem 1rem !important; font-size: 0.9375rem !important; }
+button.w-8 { width: 2.75rem !important; height: 2.75rem !important; font-size: 1.25rem !important; border-radius: 0.75rem !important; }
+input[type="text"], input[type="number"], input[type="file"], select, textarea {
+  font-size: 1rem !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.75rem !important;
+}
+label { font-size: 0.9375rem !important; color: #475569 !important; }
+html.dark label { color: #cbd5e1 !important; }
+input[type="checkbox"] { width: 1.25rem !important; height: 1.25rem !important; }
+/* Ngoại lệ: lưới nhập tấm đá giữ gọn để bảng vừa */
+#slab-table-body input, #slab-table-body select { font-size: 0.9375rem !important; padding: 0.5rem 0.625rem !important; }
+
+/* ---- F. Sidebar & header ---- */
+header .bg-gradient-to-br { background: #d97706 !important; box-shadow: none !important; border-radius: 0.75rem !important; }
+aside button.nav-btn { padding: 0.75rem 1rem !important; font-size: 1rem !important; border-radius: 0.75rem !important; }
+aside button.nav-btn i { font-size: 1.125rem !important; }
+aside .bg-gradient-to-br.text-white { display: none !important; }
+
+/* ---- G. KPI cards: nhãn rõ (bỏ uppercase, to hơn) ---- */
+[class*="font-semibold uppercase tracking-wider text-slate-500"],
+[class*="font-semibold uppercase text-slate-500"] {
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+}
+/* Nút đóng modal + nút theme: to & icon rõ */
+button.w-11 { font-size: 1.25rem !important; }
+button.w-9 { width: 2.75rem !important; height: 2.75rem !important; font-size: 1.25rem !important; }
+/* Nhãn dạng nút (chọn ảnh...) to hơn dễ bấm */
+label[class*="bg-blue-600"], label[class*="bg-amber-600"], label[class*="bg-emerald-600"] {
+  padding: 0.625rem 1rem !important;
+  font-size: 0.9375rem !important;
+  border-radius: 0.75rem !important;
+}
+
+/* ---- H. Ops tab: thanh tải trọng to hơn, nhật ký dễ đọc ---- */
+[class*="h-3"] { height: 1rem !important; }
+#ops-activity { font-size: 0.9375rem !important; }
+#ops-activity .text-xs, #ops-abc .text-xs { font-size: 0.875rem !important; color: #475569 !important; }
+html.dark #ops-activity .text-xs, html.dark #ops-abc .text-xs { color: #cbd5e1 !important; }
+
+/* ---- I. Dark mode đối ứng cho lớp override ---- */
+html.dark .bg-amber-50, html.dark .bg-emerald-50, html.dark .bg-blue-50,
+html.dark .bg-purple-50, html.dark .bg-rose-50 { background-color: #1e293b !important; } /* slate-800 */
+html.dark .text-slate-400 { color: #94a3b8 !important; }
+html.dark .text-slate-500 { color: #cbd5e1 !important; }
+html.dark button[class*="bg-slate-100"], html.dark button[class*="bg-slate-200"] { background-color: #334155 !important; color: #e2e8f0 !important; }

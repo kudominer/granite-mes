@@ -44,18 +44,18 @@
       const tbody = document.getElementById('dashboard-orders-list');
       tbody.innerHTML = orders.map(o => `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="py-3 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
-            ${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span>
+          <td data-label="Đơn hàng" class="py-3 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
+            ${o.id} <span class="block text-sm font-normal text-slate-600 dark:text-slate-400">${o.customer}</span>
           </td>
-          <td class="py-3">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${o.branch === '45' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950' : 'bg-purple-50 text-purple-600 dark:bg-purple-950'}">
+          <td data-label="Nhánh" class="py-3">
+            <span class="font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">
               ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
             </span>
           </td>
-          <td class="py-3">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 dark:bg-amber-950/50">Đang xử lý</span>
+          <td data-label="Trạng thái" class="py-3">
+            <span class="font-semibold text-amber-600">Đang xử lý</span>
           </td>
-          <td class="py-3 text-right font-bold tabular-nums">${formatMoney(o.total)}</td>
+          <td data-label="Tổng tiền" class="py-3 text-right font-bold tabular-nums">${formatMoney(o.total)}</td>
         </tr>
       `).join('');
     }
@@ -66,9 +66,9 @@
       currentInvTab = tab;
       ['cust', 'shop', 'fin'].forEach(t => {
         const btn = document.getElementById(`inv-tab-${t}`);
-        btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition ' + (
+        btn.className = 'px-5 py-3 rounded-xl text-base font-bold transition ' + (
           (tab === 'customer' && t === 'cust') || (tab === 'shop' && t === 'shop') || (tab === 'finished' && t === 'fin')
-          ? 'bg-amber-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+          ? 'bg-amber-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
         );
       });
       renderInventory();
@@ -150,22 +150,22 @@
       const tbody = document.getElementById('orders-table-body');
       tbody.innerHTML = orders.map(o => `
         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="p-4 font-bold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
-            ${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span>
+          <td data-label="Đơn hàng" class="p-4 font-bold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
+            ${o.id} <span class="block text-sm font-normal text-slate-600 dark:text-slate-400">${o.customer}</span>
           </td>
-          <td class="p-4">
+          <td data-label="Loại đá" class="p-4">
             <div class="font-semibold">${o.stone}</div>
           </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${o.branch === '45' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'}">
+          <td data-label="Nhánh" class="p-4">
+            <span class="font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">
               ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
             </span>
           </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-600">Đang thực hiện</span>
+          <td data-label="Trạng thái" class="p-4">
+            <span class="font-semibold text-amber-600">Đang thực hiện</span>
           </td>
-          <td class="p-4 text-right">
-            <button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">
+          <td data-label="Thao tác" class="p-4 text-right">
+            <button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-semibold transition">
               Cập nhật tiến độ <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
           </td>
@@ -184,23 +184,23 @@
 
       const body = document.getElementById('modal-order-body');
       body.innerHTML = `
-        <div class="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl text-xs">
-          <div><span class="text-slate-400 block">Khách hàng:</span> <strong class="text-sm">${order.customer} (${order.phone})</strong></div>
-          <div><span class="text-slate-400 block">Loại đá:</span> <strong class="text-sm">${order.stone}</strong></div>
-          <div><span class="text-slate-400 block">Tổng tiền:</span> <strong class="text-emerald-600 text-sm">${formatMoney(order.total)}</strong></div>
-          <div><span class="text-slate-400 block">Thanh toán:</span> <strong>${order.payFlag === 'thu_truoc' ? 'Thu cọc trước' : 'Thu sau giao'}</strong></div>
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl text-sm">
+          <div><span class="text-slate-500 dark:text-slate-400 block">Khách hàng:</span> <strong class="text-base">${order.customer} (${order.phone})</strong></div>
+          <div><span class="text-slate-500 dark:text-slate-400 block">Loại đá:</span> <strong class="text-base">${order.stone}</strong></div>
+          <div><span class="text-slate-500 dark:text-slate-400 block">Tổng tiền:</span> <strong class="text-emerald-600 text-base">${formatMoney(order.total)}</strong></div>
+          <div><span class="text-slate-500 dark:text-slate-400 block">Thanh toán:</span> <strong class="text-base">${order.payFlag === 'thu_truoc' ? 'Thu cọc trước' : 'Thu sau giao'}</strong></div>
         </div>
 
         <div>
-          <h4 class="font-bold text-sm mb-3">Các bước gia công chuẩn theo nhánh (${order.branch === '45' ? 'Ghép 45°' : 'Ghép Bo'})</h4>
+          <h4 class="font-bold text-base mb-3">Các bước gia công chuẩn theo nhánh (${order.branch === '45' ? 'Ghép 45°' : 'Ghép Bo'})</h4>
           <div class="space-y-2.5">
             ${order.steps.map((s, idx) => `
               <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
                 <div class="flex items-center space-x-3">
                   <input type="checkbox" id="step-${idx}" ${s.done ? 'checked' : ''} onchange="toggleStepItem('${order.id}', ${idx})" class="w-4 h-4 rounded text-amber-600">
-                  <label for="step-${idx}" class="text-xs font-bold cursor-pointer">${s.name}</label>
+                  <label for="step-${idx}" class="text-sm font-bold cursor-pointer">${s.name}</label>
                 </div>
-                <span class="text-xs px-2 py-0.5 rounded ${s.done ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}">
+                <span class="text-sm font-semibold ${s.done ? 'text-emerald-600' : 'text-slate-500'}">
                   ${s.done ? 'Xong' : 'Chờ'}
                 </span>
               </div>
@@ -211,11 +211,11 @@
         <div class="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 space-y-2">
           <h5 class="text-xs font-bold text-amber-800 dark:text-amber-300"><i class="fa-solid fa-plus-circle mr-1"></i> Công đoạn phụ động phát sinh (Khoét lavabo, khoan lỗ...)</h5>
           <div id="extra-tasks-list" class="space-y-1">
-            ${order.extraTasks.map(et => `<div class="text-xs bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border flex justify-between items-center"><span>✓ ${et.name}</span><span class="text-emerald-600 text-[10px]">Đã thêm</span></div>`).join('')}
+            ${order.extraTasks.map(et => `<div class="text-sm bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg border flex justify-between items-center"><span>✓ ${et.name}</span><span class="text-emerald-600 text-xs">Đã thêm</span></div>`).join('')}
           </div>
           <div class="flex space-x-2 pt-2">
-            <input type="text" id="new-extra-task-input" placeholder="Nhập tên công đoạn phát sinh..." class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-xs">
-            <button onclick="addExtraTask('${order.id}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-xl text-xs font-semibold">Thêm</button>
+            <input type="text" id="new-extra-task-input" placeholder="Nhập tên công đoạn phát sinh..." class="flex-1 px-3 py-1.5 bg-white dark:bg-slate-900 border rounded-xl text-sm">
+            <button onclick="addExtraTask('${order.id}')" class="px-3 py-1.5 bg-amber-600 text-white rounded-xl text-sm font-semibold">Thêm</button>
           </div>
         </div>
         <div class="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
@@ -225,19 +225,19 @@
           </div>
           <div id="slabs-list" class="space-y-1.5">
             ${(order.slabs || []).map((s, i) => `
-              <div class="text-xs bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
+              <div class="text-sm bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
                 <div class="flex-1">
                   <strong>#${i+1}</strong> ${s.dai} x ${s.rong} cm · <span class="text-emerald-600 font-semibold">${s.kieu}</span>
-                  ${s.defect ? '<span class="ml-1 px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold text-[10px]">LỖI</span>' : ''}
-                  ${s.note ? `<div class="text-slate-400 text-[11px]">${s.note}</div>` : ''}
+                  ${s.defect ? '<span class="ml-1 px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold text-xs">LỖI</span>' : ''}
+                  ${s.note ? `<div class="text-slate-500 dark:text-slate-400 text-xs">${s.note}</div>` : ''}
                 </div>
                 <div class="flex items-center gap-2">
                   <div class="text-right text-emerald-600 font-bold tabular-nums">${formatMoney(s.donGia)}</div>
-                  <button onclick="toggleSlabDefect('${order.id}', ${i})" class="px-2 py-1 rounded-lg text-[10px] font-bold ${s.defect ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${s.defect ? 'Hủy lỗi' : 'Đánh dấu lỗi'}</button>
+                  <button onclick="toggleSlabDefect('${order.id}', ${i})" class="px-2 py-1 rounded-lg text-xs font-bold ${s.defect ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${s.defect ? 'Hủy lỗi' : 'Đánh dấu lỗi'}</button>
                 </div>
               </div>
             `).join('')}
-            ${(!order.slabs || order.slabs.length === 0) ? '<div class="text-xs text-slate-400 text-center py-1">Chưa có tấm nào. Bấm "+ Thêm tấm" để nhập.</div>' : ''}
+            ${(!order.slabs || order.slabs.length === 0) ? '<div class="text-sm text-slate-500 dark:text-slate-400 text-center py-1">Chưa có tấm nào. Bấm "+ Thêm tấm" để nhập.</div>' : ''}
           </div>
         </div>
         <div class="bg-blue-50 dark:bg-blue-950/30 p-4 rounded-2xl border border-blue-200 dark:border-blue-800/50 space-y-2">
@@ -250,7 +250,7 @@
           </div>
           <div id="order-photos" class="grid grid-cols-3 gap-2">
             ${(order.photos || []).map(p => `<img src="${p}" class="w-full h-24 object-cover rounded-lg border border-blue-200 dark:border-blue-800">`).join('')}
-            ${(!order.photos || order.photos.length === 0) ? '<div class="col-span-3 text-xs text-slate-400 text-center py-1">Chưa có ảnh. Thêm ảnh chụp tấm đá, biên bản giao nhận...</div>' : ''}
+            ${(!order.photos || order.photos.length === 0) ? '<div class="col-span-3 text-sm text-slate-500 dark:text-slate-400 text-center py-1">Chưa có ảnh. Thêm ảnh chụp tấm đá, biên bản giao nhận...</div>' : ''}
           </div>
         </div>
       `;
@@ -644,16 +644,16 @@
         const doneSteps = o.steps ? o.steps.filter(s => s.done).length : 0;
         const totalSteps = o.steps ? o.steps.length : 1;
         const ratio = doneSteps / totalSteps;
-        let buf = 'bg-emerald-50 text-emerald-600'; let label = 'An toàn';
-        if (ratio < 0.34) { buf = 'bg-rose-50 text-rose-600'; label = 'Gấp'; }
-        else if (ratio < 0.67) { buf = 'bg-amber-50 text-amber-600'; label = 'Chú ý'; }
+        let buf = 'text-emerald-600'; let label = 'An toàn';
+        if (ratio < 0.34) { buf = 'text-rose-600'; label = 'Gấp'; }
+        else if (ratio < 0.67) { buf = 'text-amber-600'; label = 'Chú ý'; }
         const branch = o.branch === '45' ? 'Nhánh A: 45°' : 'Nhánh B: Bo';
         return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="p-4 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">${o.id} <span class="block text-xs font-normal text-slate-500">${o.customer}</span></td>
-          <td class="p-4 text-xs font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">${branch}</td>
-          <td class="p-4"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800">${doneSteps}/${totalSteps} bước</span></td>
-          <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${buf}">${label}</span></td>
-          <td class="p-4 text-right"><button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold transition">Xem</button></td>
+          <td data-label="Đơn" class="p-4 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">${o.id} <span class="block text-sm font-normal text-slate-600 dark:text-slate-400">${o.customer}</span></td>
+          <td data-label="Nhánh" class="p-4 text-sm font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">${branch}</td>
+          <td data-label="Bước" class="p-4"><span class="font-semibold">${doneSteps}/${totalSteps} bước</span></td>
+          <td data-label="Ưu tiên" class="p-4"><span class="font-semibold ${buf}">${label}</span></td>
+          <td data-label="Thao tác" class="p-4 text-right"><button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-semibold transition">Xem</button></td>
         </tr>`;
       }).join('');
 
