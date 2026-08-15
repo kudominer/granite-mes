@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS orders (
   total       BIGINT DEFAULT 0,           -- tổng tiền đơn (VNĐ)
   pay_flag    TEXT,                       -- 'thu_truoc' | 'thu_sau'
   notes       TEXT,
-  steps       JSONB DEFAULT '[]'::jsonb,  -- quy trình khép kín được nhúng trong đây (phần tử __wf) — KHÔNG cần cột riêng
+  steps       JSONB DEFAULT '[]'::jsonb,  -- checklist cũ (lưu cho đơn cũ; đơn mới dùng cột workflow)
+  workflow    JSONB DEFAULT '{}'::jsonb,  -- quy trình khép kín (nhận đơn -> cắt -> gia công -> hoàn thành -> giao)
   extra_tasks JSONB DEFAULT '[]'::jsonb,  -- công đoạn phụ
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );

@@ -1,9 +1,7 @@
 // ===== StoneFlow Pro - Supabase Integration =====
 // Dùng anon key (từ js/config.js). Data lưu bền vững trên project granite-mes.
 let sbClient = null;
-// Quy trình khép kín (workflow) được lưu NGAY TRONG cột steps (JSONB) đã có sẵn,
-// dưới dạng 1 phần tử đánh dấu { key: '__wf', data: {...} }.
-// Vì vậy KHÔNG cần tạo cột mới, KHÔNG phải chạy ALTER TABLE trên Supabase.
+// Quy trình khép kín (workflow) lưu trong cột riêng `workflow` (JSONB) trên bảng orders.
 
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
@@ -33,13 +31,10 @@ async function loadAllFromSupabase() {
 
     // Ghép slabs vào orders
     const ordersMerged = (ordersData || []).map(o => {
-      // Lấy quy trình khép kín từ phần tử đánh dấu __wf trong steps (đã có sẵn, không cần cột mới)
-      const allSteps = o.steps || [];
-      const wfMarker = allSteps.find(s => s && s.key === '__wf');
       return {
         ...o,
-        workflow: (wfMarker && wfMarker.data) || null,
-        steps: allSteps.filter(s => !(s && s.key === '__wf')),
+        workflow: o.workflow || null,
+        steps: o.steps || [],
         extraTasks: o.extra_tasks || [],
         slabs: slabsData.filter(s => s.order_id === o.id).map(s => ({
           dai: s.dai, rong: s.rong, kieu: s.kieu, donGia: s.don_gia, note: s.note
@@ -75,16 +70,6 @@ async function loadAllFromSupabase() {
 // ===== SAVE ORDER (có slabs + photos) =====
 async function saveOrderToSupabase(order) {
   if (!sbClient) return;
-  // Nhúng quy trình khép kín vào steps (dưới dạng phần tử __wf) — KHÔNG cần cột mới
-  const stepsForDb = [...(order.steps || [])];
-  const wfIdx = stepsForDb.findIndex(s => s && s.key === '__wf');
-  if (order.workflow) {
-    const marker = { key: '__wf', data: order.workflow };
-    if (wfIdx >= 0) stepsForDb[wfIdx] = marker;
-    else stepsForDb.push(marker);
-  } else if (wfIdx >= 0) {
-    stepsForDb.splice(wfIdx, 1);
-  }
   const orderRow = {
     id: order.id,
     customer: order.customer,
@@ -95,7 +80,8 @@ async function saveOrderToSupabase(order) {
     total: order.total,
     pay_flag: order.payFlag,
     notes: order.notes,
-    steps: stepsForDb,
+    steps: order.steps || [],
+    workflow: order.workflow || {},
     extra_tasks: order.extraTasks || []
   };
   await sbClient.from('orders').upsert(orderRow, { onConflict: 'id' });

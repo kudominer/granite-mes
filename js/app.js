@@ -57,10 +57,11 @@
 
     // Đảm bảo đơn có workflow; nếu là đơn cũ (chỉ có steps) thì chuyển đổi tạm.
     function ensureWorkflow(order) {
-      if (!order.workflow) {
+      // Đơn cũ có thể có workflow = {} (default cột mới) hoặc null — vẫn phải suy ra từ steps
+      if (!order.workflow || Object.keys(order.workflow).length === 0) {
         const w = defaultWorkflow();
-        // Bỏ phần tử đánh dấu __wf (nếu có) để không đếm nhầm là bước
-        const s = (order.steps || []).filter(x => !(x && x.key === '__wf'));
+        // Đơn cũ chỉ có steps (chưa có cột workflow) -> suy ra workflow từ steps đã done
+        const s = order.steps || [];
         const has = k => !!s.find(x => x.key === k && x.done);
         if (has('cat')) w.cat = 'cat';
         else if (has('khong_cat')) w.cat = 'khong_cat';
