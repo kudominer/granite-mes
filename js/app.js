@@ -486,14 +486,8 @@
                 ${iv.photo ? `<img src="${iv.photo}" class="w-9 h-9 object-cover rounded-lg border border-slate-200 dark:border-slate-700">` : '<div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs"><i class="fa-solid fa-image"></i></div>'}
                 <div class="min-w-0">
                   <strong>${iv.name}</strong> <span class="text-xs text-slate-400">(${iv.id})</span>
-                  <div class="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-1">
-                    <span>${iv.size}</span>
-                    <span class="inline-flex items-center gap-1.5 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full">
-                      <button onclick="incInvQty('${iv.id}', -1)" class="w-5 h-5 rounded-full bg-white dark:bg-slate-700 text-slate-600 hover:bg-rose-100 hover:text-rose-600 font-bold leading-none flex items-center justify-center" title="Giảm 1 tấm">−</button>
-                      <b class="text-slate-700 dark:text-slate-200 tabular-nums">${iv.qty} tấm</b>
-                      <button onclick="incInvQty('${iv.id}', 1)" class="w-5 h-5 rounded-full bg-white dark:bg-slate-700 text-slate-600 hover:bg-emerald-100 hover:text-emerald-600 font-bold leading-none flex items-center justify-center" title="Thêm 1 tấm">+</button>
-                    </span>
-                    ${iv.note ? `<span>· ${iv.note}</span>` : ''}
+                  <div class="text-xs text-slate-500">
+                    ${iv.size}${iv.qty ? ` · ${iv.qty} tấm` : ''}${iv.note ? ` · ${iv.note}` : ''}
                   </div>
                 </div>
               </div>
