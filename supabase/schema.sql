@@ -10,13 +10,14 @@ CREATE TABLE IF NOT EXISTS orders (
   customer    TEXT NOT NULL,
   phone       TEXT,
   stone       TEXT,
-  branch      TEXT,                       -- '45' hoặc 'bo'
+  branch      TEXT,                       -- kiểu gia công: '45' hoặc 'bo'
   status      TEXT,
   total       BIGINT DEFAULT 0,           -- tổng tiền đơn (VNĐ)
   pay_flag    TEXT,                       -- 'thu_truoc' | 'thu_sau'
   notes       TEXT,
-  steps       JSONB DEFAULT '[]'::jsonb,  -- tiến độ các bước
+  steps       JSONB DEFAULT '[]'::jsonb,  -- tiến độ các bước (quy trình cũ, giữ để đọc dữ liệu cũ)
   extra_tasks JSONB DEFAULT '[]'::jsonb,  -- công đoạn phụ
+  workflow    JSONB DEFAULT '{}'::jsonb,  -- quy trình khép kín mới (nhan_don, cat, so_lieu_cat, lip, ghep, bo_kieu, danh_bong, hoan_thanh, da_giao, tam_hoan...)
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -67,6 +68,9 @@ ALTER TABLE order_photos ENABLE ROW LEVEL SECURITY;
 
 -- Policy: cho phép anon đọc/ghi (vì app nội bộ, không login)
 -- LƯU Ý: nếu sau này thêm Auth, sửa policy này.
+-- 7. CẬP NHẬT CHO DB ĐÃ TẠO TỪ TRƯỚC (chạy lại script này là an toàn)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS workflow JSONB DEFAULT '{}'::jsonb;
+
 CREATE POLICY "allow_all_orders"   ON orders        FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_slabs"   ON slabs         FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_inv"     ON inventory     FOR ALL USING (true) WITH CHECK (true);

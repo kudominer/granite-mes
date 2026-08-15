@@ -35,6 +35,82 @@
       return new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
     }
 
+    // ===== Quy trình gia công khép kín (thay cho nhánh A/B) =====
+    // Mỗi đơn có order.workflow. Đơn cũ (chưa có) được chuyển đổi tự động khi mở.
+    function defaultWorkflow() {
+      return {
+        nhanDon: true,        // 1. Nhận đơn, kiểm tra đá nhập
+        cat: '',              // 2. '' | 'cat' | 'khong_cat'
+        catQuyCach: false,    //   Cắt quy cách
+        soLieuCat: '',        //   Số liệu cắt (Dài x Rộng)
+        lip: false,           // 3a. Ghép 45°: Líp (mặt + chỉ)
+        ghep45: false,        // 3b. Ghép (45°)
+        ghepBo: false,        // 3a. Ghép bo: Ghép (bo)
+        boKieu: false,        // 3b. Bo kiểu
+        danhBong: false,      // 3c. Đánh bóng
+        hoanThanh: false,     // 4. Hoàn thành đơn, chờ giao
+        daGiao: false,        //   Chưa giao / Đã giao
+        tamHoan: false,       //   Tạm hoãn
+        tamHoanNote: ''       //   Lý do tạm hoãn (nhập tay)
+      };
+    }
+
+    // Đảm bảo đơn có workflow; nếu là đơn cũ (chỉ có steps) thì chuyển đổi tạm.
+    function ensureWorkflow(order) {
+      if (!order.workflow) {
+        const w = defaultWorkflow();
+        const s = order.steps || [];
+        const has = k => !!s.find(x => x.key === k && x.done);
+        if (has('cat')) w.cat = 'cat';
+        else if (has('khong_cat')) w.cat = 'khong_cat';
+        w.catQuyCach = w.cat === 'cat';
+        w.soLieuCat = '';
+        w.lip = has('lip_45');
+        w.ghep45 = has('ghep_cuoi_45');
+        w.ghepBo = has('ghep_bo');
+        w.boKieu = has('bo_kieu');
+        w.danhBong = has('danh_bong');
+        w.hoanThanh = order.branch === '45' ? has('ghep_cuoi_45') : has('danh_bong');
+        order.workflow = w;
+      }
+      return order;
+    }
+
+    // Danh sách bước hiện hữu của đơn (dùng để tính tiến độ % và đếm bước)
+    function workflowStepList(order) {
+      const w = ensureWorkflow(order).workflow;
+      const steps = [];
+      steps.push({ name: 'Nhận đơn, kiểm tra đá nhập', done: !!w.nhanDon });
+      if (w.cat === 'cat') {
+        steps.push({ name: 'Cắt quy cách', done: !!w.catQuyCach });
+      } else if (w.cat === 'khong_cat') {
+        steps.push({ name: 'Không cắt (đá cắt sẵn)', done: true });
+      }
+      if (order.branch === '45') {
+        steps.push({ name: 'Líp 45°', done: !!w.lip });
+        steps.push({ name: 'Ghép 45°', done: !!w.ghep45 });
+      } else {
+        steps.push({ name: 'Ghép bo', done: !!w.ghepBo });
+        steps.push({ name: 'Bo kiểu', done: !!w.boKieu });
+        steps.push({ name: 'Đánh bóng', done: !!w.danhBong });
+      }
+      steps.push({ name: 'Hoàn thành, chờ giao', done: !!w.hoanThanh });
+      return steps;
+    }
+
+    // Nhãn trạng thái đơn (hiển thị ở bảng Đơn hàng & Tổng quan)
+    function orderStatusLabel(order) {
+      const w = ensureWorkflow(order).workflow;
+      if (w.tamHoan) return ['Tạm hoãn', 'text-rose-600'];
+      if (w.hoanThanh && w.daGiao) return ['Đã giao', 'text-emerald-600'];
+      if (w.hoanThanh) return ['Chờ giao', 'text-amber-600'];
+      return ['Đang thực hiện', 'text-sky-600'];
+    }
+
+    function kieuGiaCongLabel(order) {
+      return order.branch === '45' ? 'Ghép 45°' : 'Ghép bo';
+    }
+
     // Render Dashboard
     function renderDashboard() {
       document.getElementById('kpi-active-orders').innerText = orders.length;
@@ -47,13 +123,8 @@
           <td data-label="Đơn hàng" class="py-3 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">
             ${o.id} <span class="block text-sm font-normal text-slate-600 dark:text-slate-400">${o.customer}</span>
           </td>
-          <td data-label="Nhánh" class="py-3">
-            <span class="font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">
-              ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
-            </span>
-          </td>
           <td data-label="Trạng thái" class="py-3">
-            <span class="font-semibold text-amber-600">Đang xử lý</span>
+            <span class="font-semibold ${orderStatusLabel(o)[1]}">${orderStatusLabel(o)[0]}</span>
           </td>
           <td data-label="Tổng tiền" class="py-3 text-right font-bold tabular-nums">${formatMoney(o.total)}</td>
         </tr>
@@ -156,13 +227,13 @@
           <td data-label="Loại đá" class="p-4">
             <div class="font-semibold">${o.stone}</div>
           </td>
-          <td data-label="Nhánh" class="p-4">
+          <td data-label="Kiểu gia công" class="p-4">
             <span class="font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">
-              ${o.branch === '45' ? 'Nhánh A: Ghép 45°' : 'Nhánh B: Ghép Bo'}
+              ${kieuGiaCongLabel(o)}
             </span>
           </td>
           <td data-label="Trạng thái" class="p-4">
-            <span class="font-semibold text-amber-600">Đang thực hiện</span>
+            <span class="font-semibold ${orderStatusLabel(o)[1]}">${orderStatusLabel(o)[0]}</span>
           </td>
           <td data-label="Thao tác" class="p-4 text-right">
             <button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-semibold transition">
@@ -180,7 +251,10 @@
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
 
-      document.getElementById('modal-order-title').innerText = `Đơn Hàng #${order.id} - ${order.customer} (${order.branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'})`;
+      ensureWorkflow(order);
+      const w = order.workflow;
+
+      document.getElementById('modal-order-title').innerText = `Đơn Hàng #${order.id} - ${order.customer} (Kiểu ${kieuGiaCongLabel(order)})`;
 
       const body = document.getElementById('modal-order-body');
       body.innerHTML = `
@@ -191,21 +265,136 @@
           <div><span class="text-slate-500 dark:text-slate-400 block">Thanh toán:</span> <strong class="text-base">${order.payFlag === 'thu_truoc' ? 'Thu cọc trước' : 'Thu sau giao'}</strong></div>
         </div>
 
-        <div>
-          <h4 class="font-bold text-base mb-3">Các bước gia công chuẩn theo nhánh (${order.branch === '45' ? 'Ghép 45°' : 'Ghép Bo'})</h4>
-          <div class="space-y-2.5">
-            ${order.steps.map((s, idx) => `
-              <div class="flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-                <div class="flex items-center space-x-3">
-                  <input type="checkbox" id="step-${idx}" ${s.done ? 'checked' : ''} onchange="toggleStepItem('${order.id}', ${idx})" class="w-4 h-4 rounded text-amber-600">
-                  <label for="step-${idx}" class="text-sm font-bold cursor-pointer">${s.name}</label>
+        <!-- 1. ĐÁ NHẬP cho đơn này (muốn làm thì phải có đá nhập) -->
+        <div class="bg-teal-50 dark:bg-teal-950/30 p-4 rounded-2xl border border-teal-200 dark:border-teal-800/50 space-y-2">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-teal-800 dark:text-teal-300"><i class="fa-solid fa-cubes-stack mr-1"></i> Đá Nhập cho đơn ${order.id} (${orderInventory(order.id).length} tấm)</h5>
+            <button onclick="openReceiveStoneModal('${order.id}')" class="px-2.5 py-1 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700">+ Nhận đá</button>
+          </div>
+          <div id="order-inventory" class="space-y-1.5">
+            ${orderInventory(order.id).length === 0 ? '<div class="text-sm text-slate-500 dark:text-slate-400 text-center py-1">Chưa có đá nhập. Muốn gia công phải nhập đá trước.</div>' : orderInventory(order.id).map(iv => `
+              <div class="text-sm bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border flex justify-between items-center gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center space-x-2">
+                    ${iv.photo ? `<img src="${iv.photo}" class="w-9 h-9 object-cover rounded-lg border border-slate-200 dark:border-slate-700">` : '<div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 text-xs"><i class="fa-solid fa-image"></i></div>'}
+                    <div class="min-w-0">
+                      <strong>${iv.name}</strong> <span class="text-xs text-slate-400">(${iv.id})</span>
+                      <div class="text-xs text-slate-500">${iv.size}${iv.qty ? ` · ${iv.qty} tấm` : ''}${iv.note ? ' · ' + iv.note : ''}</div>
+                    </div>
+                  </div>
                 </div>
-                <span class="text-sm font-semibold ${s.done ? 'text-emerald-600' : 'text-slate-500'}">
-                  ${s.done ? 'Xong' : 'Chờ'}
-                </span>
+                <button onclick="openEditPhotoModal('${iv.id}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-xs font-semibold whitespace-nowrap"><i class="fa-solid fa-camera mr-1"></i>${iv.photo ? 'Sửa' : 'Ảnh'}</button>
               </div>
             `).join('')}
           </div>
+        </div>
+
+        <!-- 2. QUY TRÌNH KHÉP KÍN -->
+        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-base">Quy Trình Gia Công (Kiểu ${kieuGiaCongLabel(order)})</h4>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${w.tamHoan ? 'bg-rose-100 dark:bg-rose-950 text-rose-600' : (w.hoanThanh && w.daGiao ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-sky-100 dark:bg-sky-950 text-sky-600')}">${orderStatusLabel(order)[0]}</span>
+          </div>
+          <div class="space-y-1">
+            ${workflowStepList(order).map((s, i) => `
+              <div class="flex items-center space-x-3 px-3 py-2 rounded-xl text-sm ${s.done ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200' : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300'}">
+                <span class="w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-xs font-bold ${s.done ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500'}">${i + 1}</span>
+                <span class="flex-1 font-semibold">${s.name}</span>
+                <span class="text-xs">${s.done ? '✓' : '·'}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Lựa chọn Cắt / Không cắt -->
+          <div class="mt-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+            <div class="text-sm font-bold text-slate-700 dark:text-slate-200">2. Cắt / Không cắt</div>
+            <div class="flex space-x-2">
+              <button onclick="setWorkflowCat('${order.id}','cat')" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold border transition ${w.cat === 'cat' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}">✂ Cắt</button>
+              <button onclick="setWorkflowCat('${order.id}','khong_cat')" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold border transition ${w.cat === 'khong_cat' ? 'bg-amber-600 border-amber-600 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}">Không cắt (đá cắt sẵn)</button>
+            </div>
+
+            <!-- Cắt quy cách + Số liệu cắt (chỉ khi chọn Cắt) -->
+            ${w.cat === 'cat' ? `
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-catqc" ${w.catQuyCach ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','catQuyCach',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>Cắt quy cách</span>
+                </label>
+                <span class="text-xs ${w.catQuyCach ? 'text-emerald-600' : 'text-slate-400'}">${w.catQuyCach ? '✓ Đã cắt' : 'Chưa'}</span>
+              </div>
+              <div class="px-3">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">Số liệu cắt (Dài x Rộng, cách nhau dấu phẩy)</label>
+                <input type="text" id="wf-solieu" value="${w.soLieuCat}" onchange="setWorkflowText('${order.id}','soLieuCat',this.value)" placeholder="VD: 280x60, 160x60" class="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm">
+              </div>
+            ` : ''}
+
+            <!-- Các bước gia công theo kiểu -->
+            ${(order.branch === '45') ? `
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-lip" ${w.lip ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','lip',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>3a. Líp (mặt + chỉ)</span>
+                </label>
+                <span class="text-xs ${w.lip ? 'text-emerald-600' : 'text-slate-400'}">${w.lip ? '✓ Xong' : 'Chưa'}</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-ghep45" ${w.ghep45 ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','ghep45',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>3b. Ghép</span>
+                </label>
+                <span class="text-xs ${w.ghep45 ? 'text-emerald-600' : 'text-slate-400'}">${w.ghep45 ? '✓ Xong' : 'Chưa'}</span>
+              </div>
+            ` : `
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-ghepbo" ${w.ghepBo ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','ghepBo',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>3a. Ghép (bo)</span>
+                </label>
+                <span class="text-xs ${w.ghepBo ? 'text-emerald-600' : 'text-slate-400'}">${w.ghepBo ? '✓ Xong' : 'Chưa'}</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-bokieu" ${w.boKieu ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','boKieu',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>3b. Bo kiểu</span>
+                </label>
+                <span class="text-xs ${w.boKieu ? 'text-emerald-600' : 'text-slate-400'}">${w.boKieu ? '✓ Xong' : 'Chưa'}</span>
+              </div>
+              <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                <label class="text-sm font-semibold cursor-pointer flex items-center space-x-2">
+                  <input type="checkbox" id="wf-danhbong" ${w.danhBong ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','danhBong',this.checked)" class="w-4 h-4 rounded text-amber-600">
+                  <span>3c. Đánh bóng</span>
+                </label>
+                <span class="text-xs ${w.danhBong ? 'text-emerald-600' : 'text-slate-400'}">${w.danhBong ? '✓ Xong' : 'Chưa'}</span>
+              </div>
+            `}
+
+            <!-- 4. Hoàn thành đơn, chờ giao -->
+            <div class="pt-1">
+              <label class="text-sm font-bold cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-xl border ${w.hoanThanh ? 'border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50'}">
+                <input type="checkbox" id="wf-hoanthanh" ${w.hoanThanh ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','hoanThanh',this.checked)" class="w-4 h-4 rounded text-emerald-600">
+                <span>4. Hoàn thành đơn, chờ giao</span>
+                <span class="ml-auto text-xs ${w.hoanThanh ? 'text-emerald-600' : 'text-slate-400'}">${w.hoanThanh ? '✓ Xong' : 'Chưa'}</span>
+              </label>
+              ${w.hoanThanh ? `
+                <div class="flex space-x-2 mt-2 px-3">
+                  <button onclick="setWorkflowDaGiao('${order.id}', false)" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold border transition ${!w.daGiao ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600'}">Chưa giao</button>
+                  <button onclick="setWorkflowDaGiao('${order.id}', true)" class="flex-1 px-3 py-2 rounded-xl text-sm font-semibold border transition ${w.daGiao ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600'}">Đã giao</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. TẠM HOÃN (mô tả thủ công) -->
+        <div class="bg-rose-50 dark:bg-rose-950/30 p-4 rounded-2xl border border-rose-200 dark:border-rose-800/50 space-y-2">
+          <label class="text-xs font-bold text-rose-800 dark:text-rose-300 flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" id="wf-tamhoan" ${w.tamHoan ? 'checked' : ''} onchange="toggleWorkflowBool('${order.id}','tamHoan',this.checked)" class="w-4 h-4 rounded text-rose-600">
+            <span><i class="fa-solid fa-pause mr-1"></i> Đang tạm hoãn</span>
+          </label>
+          ${w.tamHoan ? `
+            <input type="text" id="wf-tamhoannote" value="${w.tamHoanNote}" onchange="setWorkflowText('${order.id}','tamHoanNote',this.value)" placeholder="VD: Đang tạm hoãn vì công trình có phát sinh..." class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 rounded-xl text-sm">
+            <p class="text-xs text-rose-600 dark:text-rose-300">Đơn đang tạm hoãn: ${w.tamHoanNote || '(chưa nhập lý do)'}</p>
+          ` : ''}
         </div>
 
         <div class="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 space-y-2">
@@ -264,11 +453,58 @@
       document.getElementById('order-modal').classList.add('hidden');
     }
 
-    function toggleStepItem(orderId, stepIdx) {
+    // Lọc đá nhập thuộc đơn (nối theo mã đơn trong ownerName, format "(Đơn DH-xxx)")
+    function orderInventory(orderId) {
+      return inventory.filter(i => i.ownerName && i.ownerName.includes('(Đơn ' + orderId + ')'));
+    }
+
+    // Bật/tắt 1 cờ quy trình (checkbox trong modal)
+    function toggleWorkflowBool(orderId, key, val) {
       const order = orders.find(o => o.id === orderId);
-      if (order && order.steps[stepIdx]) {
-        order.steps[stepIdx].done = !order.steps[stepIdx].done;
-      }
+      if (!order) return;
+      ensureWorkflow(order);
+      order.workflow[key] = !!val;
+      saveWorkflowOrder(order);
+      openOrderModal(orderId);
+    }
+
+    // Chọn Cắt / Không cắt
+    function setWorkflowCat(orderId, cat) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      ensureWorkflow(order);
+      order.workflow.cat = cat;
+      if (cat === 'khong_cat') order.workflow.catQuyCach = false;
+      saveWorkflowOrder(order);
+      openOrderModal(orderId);
+    }
+
+    // Nhập text (số liệu cắt / lý do tạm hoãn)
+    function setWorkflowText(orderId, key, val) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      ensureWorkflow(order);
+      order.workflow[key] = val;
+      saveWorkflowOrder(order);
+    }
+
+    // Đánh dấu Đã giao / Chưa giao
+    function setWorkflowDaGiao(orderId, val) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      ensureWorkflow(order);
+      order.workflow.daGiao = !!val;
+      saveWorkflowOrder(order);
+      openOrderModal(orderId);
+    }
+
+    // Lưu workflow + render lại các bảng phụ thuộc trạng thái
+    function saveWorkflowOrder(order) {
+      order.status = order.workflow.tamHoan ? 'tam_hoan'
+        : (order.workflow.hoanThanh ? (order.workflow.daGiao ? 'da_giao' : 'cho_giao') : 'dang_gia_cong');
+      saveOrderToSupabase(order);
+      renderDashboard();
+      renderOrdersTable();
     }
 
     function addExtraTask(orderId) {
@@ -284,6 +520,11 @@
     }
 
     function saveOrderChanges() {
+      const order = orders.find(o => o.id === activeOrderId);
+      if (order) {
+        ensureWorkflow(order);
+        saveOrderToSupabase(order);
+      }
       closeOrderModal();
       renderDashboard();
       renderOrdersTable();
@@ -316,20 +557,8 @@
       }
 
       const newId = 'DH-' + (100 + orders.length + 1);
-      const steps = branch === '45' ? [
-        { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
-        { key: 'cat', name: '2. Cắt phôi', done: false },
-        { key: 'ghep_45', name: '3. Ghép 45°', done: false },
-        { key: 'lip_45', name: '4. Líp 45° (Tách Líp mặt + Líp chỉ)', done: false },
-        { key: 'ghep_cuoi_45', name: '5. Ghép (Kết thúc nhánh 45°)', done: false }
-      ] : [
-        { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
-        { key: 'khong_cat', name: '2. Không cắt (Cắt sẵn)', done: false },
-        { key: 'ghep_bo', name: '3. Ghép bo', done: false },
-        { key: 'ghep_giua', name: '4. Ghép', done: false },
-        { key: 'bo_kieu', name: '5. Bo kiểu', done: false },
-        { key: 'danh_bong', name: '6. Đánh bóng (Bắt buộc nhánh Bo)', done: false }
-      ];
+      // Quy trình khép kín: bắt đầu từ "Nhận đơn, kiểm tra đá nhập"
+      const w = defaultWorkflow();
 
       orders.unshift({
         id: newId,
@@ -337,12 +566,13 @@
         phone: phone || '0900...',
         stone: stone,
         branch: branch,
-        status: 'moi_nhan',
+        status: 'dang_gia_cong',
         total: total,
         payFlag: payFlag,
         notes: notes,
         extraTasks: [],
-        steps: steps
+        steps: [],
+        workflow: w
       });
 
       closeNewOrderModal();
@@ -350,12 +580,15 @@
       renderOrdersTable();
       const newOrder = orders.find(o => o.id === newId);
       if (newOrder) saveOrderToSupabase(newOrder);
-      logActivity('order', `Nhận đơn ${newId} · ${branch === '45' ? 'Nhánh 45°' : 'Nhánh Bo'} · ${customer}`);
-      alert(`Đã nhận đơn hàng mới ${newId} (${branch === '45' ? 'Nhánh Ghép 45°' : 'Nhánh Ghép Bo'}) thành công!`);
+      logActivity('order', `Nhận đơn ${newId} · Kiểu ${branch === '45' ? 'Ghép 45°' : 'Ghép bo'} · ${name}`);
+      alert(`Đã nhận đơn hàng mới ${newId} (Kiểu ${branch === '45' ? 'Ghép 45°' : 'Ghép bo'}) thành công!`);
     }
 
     // Receive Stone (Khách đem đá tới - chụp & lưu)
-    function openReceiveStoneModal() {
+    function openReceiveStoneModal(prefillOrderId) {
+      if (prefillOrderId) {
+        document.getElementById('rec-order-id').value = prefillOrderId;
+      }
       document.getElementById('receive-stone-modal').classList.remove('hidden');
       document.getElementById('receive-stone-modal').classList.add('flex');
     }
@@ -413,6 +646,8 @@
         saveInventoryToSupabase(inventory[0]);
         logActivity('receive', `Nhận đá "${ma}" · ${qty} tấm · từ ${cust} (Đơn ${orderId || '—'})`);
         alert(`Đã nhận đá "${ma}" từ ${cust} (${qty} tấm) và lưu vào kho khách gửi!`);
+        // Nếu nhận từ chi tiết đơn, làm mới lại modal đơn để hiện Đá Nhập
+        if (orderId) openOrderModal(orderId);
       };
 
       if (photoFile) {
@@ -594,8 +829,15 @@
     function renderOpsIntelligence() {
       const all = (typeof orders !== 'undefined' ? orders : []);
       const inv = (typeof inventory !== 'undefined' ? inventory : []);
-      const active = all.filter(o => !(o.steps && o.steps.length && o.steps.every(s => s.done)));
-      const done = all.filter(o => o.steps && o.steps.length && o.steps.every(s => s.done));
+      // Đơn đang làm = có workflow và chưa hoàn thành (bỏ qua tạm hoãn vẫn tính là đang làm)
+      const active = all.filter(o => {
+        ensureWorkflow(o);
+        return !o.workflow.hoanThanh;
+      });
+      const done = all.filter(o => {
+        ensureWorkflow(o);
+        return !!o.workflow.hoanThanh;
+      });
 
       // KPI
       const ontime = all.length ? Math.round(done.length / all.length * 100) : 0;
@@ -606,7 +848,7 @@
       const warn = inv.filter(i => !i.photo).length + (all.reduce((s, o) => s + (o.slabs || []).filter(sl => sl.defect).length, 0));
       document.getElementById('ops-warn').textContent = warn;
 
-      // Branch load (Drum-Buffer-Rope: nhánh nào nhiều đơn đang làm = constraint)
+      // Tải trọng theo kiểu gia công (Kiểu nào nhiều đơn đang làm = ràng buộc, ưu tiên đẩy)
       const aN = active.filter(o => o.branch === '45').length;
       const bN = active.filter(o => o.branch === 'bo').length;
       const maxB = Math.max(aN, bN, 1);
@@ -641,16 +883,17 @@
         return;
       }
       body.innerHTML = ranked.map(o => {
-        const doneSteps = o.steps ? o.steps.filter(s => s.done).length : 0;
-        const totalSteps = o.steps ? o.steps.length : 1;
+        const stepList = workflowStepList(o);
+        const doneSteps = stepList.filter(s => s.done).length;
+        const totalSteps = stepList.length || 1;
         const ratio = doneSteps / totalSteps;
         let buf = 'text-emerald-600'; let label = 'An toàn';
         if (ratio < 0.34) { buf = 'text-rose-600'; label = 'Gấp'; }
         else if (ratio < 0.67) { buf = 'text-amber-600'; label = 'Chú ý'; }
-        const branch = o.branch === '45' ? 'Nhánh A: 45°' : 'Nhánh B: Bo';
+        const branch = kieuGiaCongLabel(o);
         return `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
           <td data-label="Đơn" class="p-4 font-semibold text-amber-600 cursor-pointer" onclick="openOrderModal('${o.id}')">${o.id} <span class="block text-sm font-normal text-slate-600 dark:text-slate-400">${o.customer}</span></td>
-          <td data-label="Nhánh" class="p-4 text-sm font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">${branch}</td>
+          <td data-label="Kiểu gia công" class="p-4 text-sm font-bold ${o.branch === '45' ? 'text-emerald-600' : 'text-purple-600'}">${branch}</td>
           <td data-label="Bước" class="p-4"><span class="font-semibold">${doneSteps}/${totalSteps} bước</span></td>
           <td data-label="Ưu tiên" class="p-4"><span class="font-semibold ${buf}">${label}</span></td>
           <td data-label="Thao tác" class="p-4 text-right"><button onclick="openOrderModal('${o.id}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 rounded-lg text-sm font-semibold transition">Xem</button></td>

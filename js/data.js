@@ -21,44 +21,83 @@
         customer: 'Anh Nam Thầu',
         phone: '0903 123 456',
         stone: 'Kim Sa Trung',
-        branch: '45', // Nhánh A: Ghép 45 độ
-        status: 'dang_ghep_45',
+        branch: '45', // kiểu gia công: Ghép 45°
+        status: 'dang_gia_cong',
         total: 12500000,
         payFlag: 'thu_truoc',
-        notes: 'Bặt bếp chữ L, ghép 45 độ.',
+        notes: 'Mặt bếp chữ L, ghép 45 độ.',
         slabs: [
           { dai: 280, rong: 60, kieu: 'Ghép 45°', donGia: 2500000, note: 'Cạnh bếp dài' },
           { dai: 160, rong: 60, kieu: 'Ghép 45°', donGia: 1800000, note: 'Cạnh bếp ngắn' }
         ],
         photos: [],
         extraTasks: [{name: 'Khoét lỗ chậu rửa bát', done: true}],
-        steps: [
-          { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
-          { key: 'cat', name: '2. Cắt phôi', done: true },
-          { key: 'ghep_45', name: '3. Ghép 45°', done: true },
-          { key: 'lip_45', name: '4. Líp 45° (Tách Líp mặt + Líp chỉ)', done: true },
-          { key: 'ghep_cuoi_45', name: '5. Ghép (Kết thúc nhánh 45°)', done: false }
-        ]
+        // Quy trình khép kín (thay cho "steps" cũ)
+        workflow: {
+          nhanDon: true,        // 1. Nhận đơn, kiểm tra đá nhập
+          cat: 'cat',           // 2. Cắt / Không cắt
+          catQuyCach: true,     //   - Cắt quy cách
+          soLieuCat: '280x60, 160x60', //   - Số liệu cắt
+          lip: true,            // 3a. Líp (mặt + chỉ)
+          ghep45: false,        // 3b. Ghép (45°)
+          ghepBo: false, boKieu: false, danhBong: false, // nhánh bo (không dùng)
+          hoanThanh: false,     // 4. Hoàn thành đơn, chờ giao
+          daGiao: false,        //   Chưa giao / Đã giao
+          tamHoan: false, tamHoanNote: ''
+        }
       },
       {
         id: 'DH-102',
         customer: 'Chị Lan Q.7',
         phone: '0988 765 432',
         stone: 'Marble Trắng Ý',
-        branch: 'bo', // Nhánh B: Ghép bo
-        status: 'dang_danh_bong',
+        branch: 'bo', // kiểu gia công: Ghép bo
+        status: 'dang_gia_cong',
         total: 18000000,
         payFlag: 'thu_sau',
         notes: 'Ốp cầu thang tay vịn.',
+        slabs: [],
+        photos: [],
         extraTasks: [],
-        steps: [
-          { key: 'nhan_don', name: '1. Nhận đơn & Đo đạc', done: true },
-          { key: 'khong_cat', name: '2. Không cắt (Cắt sẵn)', done: true },
-          { key: 'ghep_bo', name: '3. Ghép bo', done: true },
-          { key: 'ghep_giua', name: '4. Ghép', done: true },
-          { key: 'bo_kieu', name: '5. Bo kiểu', done: true },
-          { key: 'danh_bong', name: '6. Đánh bóng (Bắt buộc nhánh Bo)', done: false }
-        ]
+        workflow: {
+          nhanDon: true,
+          cat: 'khong_cat',     // đá khách cắt sẵn
+          catQuyCach: false,
+          soLieuCat: '',
+          lip: false, ghep45: false,
+          ghepBo: true,         // 3a. Ghép (bo)
+          boKieu: true,         // 3b. Bo kiểu
+          danhBong: false,      // 3c. Đánh bóng
+          hoanThanh: false,
+          daGiao: false,
+          tamHoan: false, tamHoanNote: ''
+        }
+      },
+      {
+        id: 'DH-103',
+        customer: 'Anh Bảy Xưởng Gỗ',
+        phone: '0912 345 678',
+        stone: 'Đá Vàng Cổ Điển',
+        branch: '45',
+        status: 'cho_giao',
+        total: 8500000,
+        payFlag: 'thu_sau',
+        notes: 'Mặt tiền bàn quầy.',
+        slabs: [],
+        photos: [],
+        extraTasks: [],
+        workflow: {
+          nhanDon: true,
+          cat: 'cat',
+          catQuyCach: true,
+          soLieuCat: '240x60',
+          lip: true,
+          ghep45: true,
+          ghepBo: false, boKieu: false, danhBong: false,
+          hoanThanh: true,      // hoàn thành, chờ giao
+          daGiao: false,        // Chưa giao
+          tamHoan: false, tamHoanNote: ''
+        }
       }
     ];
 

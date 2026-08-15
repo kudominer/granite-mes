@@ -1,6 +1,9 @@
 // ===== StoneFlow Pro - Supabase Integration =====
 // Dùng anon key (từ js/config.js). Data lưu bền vững trên project granite-mes.
 let sbClient = null;
+// Cột workflow (quy trình khép kín) chỉ có sau khi chạy ALTER TABLE trong schema.sql.
+// Nếu chưa chạy, app vẫn lưu được các trường cũ (không lưu workflow) để không hỏng.
+let sbHasWorkflow = true;
 
 function initSupabase() {
   if (!window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
@@ -8,7 +11,20 @@ function initSupabase() {
     return false;
   }
   sbClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  checkWorkflowColumn();
   return true;
+}
+
+// Kiểm tra cột workflow đã tồn tại chưa (1 lần, khi khởi động)
+async function checkWorkflowColumn() {
+  if (!sbClient) return;
+  try {
+    await sbClient.from('orders').select('workflow').limit(1);
+    sbHasWorkflow = true;
+  } catch (e) {
+    sbHasWorkflow = false;
+    console.warn('[StoneFlow] Cột workflow chưa có trong DB — chạy ALTER TABLE trong supabase/schema.sql để lưu quy trình khép kín. Vẫn lưu được dữ liệu cũ.');
+  }
 }
 
 // Load toàn bộ data từ Supabase vào biến global (orders, inventory)
@@ -31,6 +47,7 @@ async function loadAllFromSupabase() {
     // Ghép slabs vào orders
     const ordersMerged = (ordersData || []).map(o => ({
       ...o,
+      workflow: (sbHasWorkflow && o.workflow) || null,
       steps: o.steps || [],
       extraTasks: o.extra_tasks || [],
       slabs: slabsData.filter(s => s.order_id === o.id).map(s => ({
@@ -80,6 +97,7 @@ async function saveOrderToSupabase(order) {
     steps: order.steps || [],
     extra_tasks: order.extraTasks || []
   };
+  if (sbHasWorkflow) orderRow.workflow = order.workflow || {};
   await sbClient.from('orders').upsert(orderRow, { onConflict: 'id' });
 
   // Slabs: xoá cũ, thêm mới

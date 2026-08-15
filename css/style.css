@@ -138,7 +138,7 @@ html.dark .bg-slate-200 { background-color: #334155 !important; }
 /* ---- B. Tương phản light mode ---- */
 html:not(.dark) .text-slate-400 { color: #64748b !important; } /* slate-500 */
 html:not(.dark) .text-slate-500 { color: #475569 !important; } /* slate-600 */
-/* Màu accent đậm hơn một bậc, GIỮ ý nghĩa mã màu nhánh */
+/* Màu accent đậm hơn một bậc cho dễ đọc */
 html:not(.dark) .text-amber-600 { color: #b45309 !important; }   /* amber-700 */
 html:not(.dark) .text-emerald-600 { color: #047857 !important; } /* emerald-700 */
 html:not(.dark) .text-purple-600 { color: #7e22ce !important; }  /* purple-700 */
