@@ -611,7 +611,7 @@
       document.getElementById('receive-stone-modal').classList.remove('flex');
       document.getElementById('receive-stone-modal').classList.add('hidden');
       // reset
-      ['rec-cust-name','rec-order-id','rec-ma','rec-size','rec-qty','rec-notes'].forEach(id => document.getElementById(id).value = '');
+      ['rec-cust-name','rec-order-id','rec-ma','rec-size-dai','rec-size-rong','rec-qty','rec-notes'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('rec-photo').value = '';
       document.getElementById('rec-photo-preview').classList.add('hidden');
     }
@@ -631,7 +631,10 @@
       const cust = document.getElementById('rec-cust-name').value.trim();
       const orderId = document.getElementById('rec-order-id').value.trim();
       const ma = document.getElementById('rec-ma').value.trim();
-      const size = document.getElementById('rec-size').value.trim();
+      // Kích thước: 2 ô Dài × Rộng (cm), bỏ trống 1 bên → coi như chưa đo
+      const dai = document.getElementById('rec-size-dai').value.trim();
+      const rong = document.getElementById('rec-size-rong').value.trim();
+      const size = (dai && rong) ? `${dai} x ${rong} cm` : '';
       const qty = parseInt(document.getElementById('rec-qty').value) || 1;
       const notes = document.getElementById('rec-notes').value.trim();
       const photoInput = document.getElementById('rec-photo');
