@@ -100,13 +100,26 @@
       return steps;
     }
 
-    // Nhãn trạng thái đơn (hiển thị ở bảng Đơn hàng & Tổng quan)
+    // Nhãn trạng thái đơn — "tiến độ thật": suy ra đơn đang dừng ở công đoạn nào
+    // Trả về [nhãn, màu chữ, màu pill nền] để dùng ở bảng & modal.
     function orderStatusLabel(order) {
       const w = ensureWorkflow(order).workflow;
-      if (w.tamHoan) return ['Tạm hoãn', 'text-rose-600'];
-      if (w.hoanThanh && w.daGiao) return ['Đã giao', 'text-emerald-600'];
-      if (w.hoanThanh) return ['Chờ giao', 'text-amber-600'];
-      return ['Đang thực hiện', 'text-sky-600'];
+      const pill = (bg, text) => `${bg} ${text}`;
+      if (w.tamHoan) return ['⏸️ Tạm hoãn', 'text-rose-600', pill('bg-rose-100 dark:bg-rose-950', 'text-rose-600')];
+      if (w.hoanThanh && w.daGiao) return ['🚚 Đã giao', 'text-emerald-600', pill('bg-emerald-100 dark:bg-emerald-950', 'text-emerald-600')];
+      if (w.hoanThanh) return ['📦 Chờ giao', 'text-amber-600', pill('bg-amber-100 dark:bg-amber-950', 'text-amber-600')];
+      // Đang thực hiện → suy ra công đoạn hiện tại từ workflow
+      if (w.cat === '') return ['⏳ Chờ chọn cắt', 'text-slate-500', pill('bg-slate-100 dark:bg-slate-800', 'text-slate-500')];
+      if (w.cat === 'cat' && !w.catQuyCach) return ['🔪 Đang cắt quy cách', 'text-sky-600', pill('bg-sky-100 dark:bg-sky-950', 'text-sky-600')];
+      if (order.branch === '45') {
+        if (!w.lip) return ['🪚 Đang líp 45°', 'text-purple-600', pill('bg-purple-100 dark:bg-purple-950', 'text-purple-600')];
+        if (!w.ghep45) return ['🔗 Đang ghép 45°', 'text-purple-600', pill('bg-purple-100 dark:bg-purple-950', 'text-purple-600')];
+      } else {
+        if (!w.ghepBo) return ['🪚 Đang ghép bo', 'text-purple-600', pill('bg-purple-100 dark:bg-purple-950', 'text-purple-600')];
+        if (!w.boKieu) return ['🎨 Đang bo kiểu', 'text-purple-600', pill('bg-purple-100 dark:bg-purple-950', 'text-purple-600')];
+        if (!w.danhBong) return ['✨ Đang đánh bóng', 'text-purple-600', pill('bg-purple-100 dark:bg-purple-950', 'text-purple-600')];
+      }
+      return ['⚙️ Đang thực hiện', 'text-sky-600', pill('bg-sky-100 dark:bg-sky-950', 'text-sky-600')];
     }
 
     function kieuGiaCongLabel(order) {
@@ -295,7 +308,7 @@
         <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-bold text-base">Quy Trình Gia Công (Kiểu ${kieuGiaCongLabel(order)})</h4>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full ${w.tamHoan ? 'bg-rose-100 dark:bg-rose-950 text-rose-600' : (w.hoanThanh && w.daGiao ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600' : 'bg-sky-100 dark:bg-sky-950 text-sky-600')}">${orderStatusLabel(order)[0]}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${orderStatusLabel(order)[2]}">${orderStatusLabel(order)[0]}</span>
           </div>
           <div class="space-y-1">
             ${workflowStepList(order).map((s, i) => `
